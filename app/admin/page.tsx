@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Shield, Camera, Cpu, Activity, AlertTriangle, GitFork, RefreshCw, LogOut, CheckCircle, Radio, Database, Lock } from "lucide-react";
 import Link from "next/link";
+import { signOut } from "@/lib/supabaseClient";
 
 export default function AdminControlPanel() {
   const router = useRouter();
@@ -25,11 +26,20 @@ export default function AdminControlPanel() {
     }
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("yatra_admin_user");
     }
-    router.push("/login");
+    try {
+      await signOut();
+    } catch (e) {
+      console.error(e);
+    }
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    } else {
+      router.push("/login");
+    }
   };
 
   const handleManualOverride = () => {
@@ -45,22 +55,24 @@ export default function AdminControlPanel() {
       {/* Top Fixed Admin Header */}
       <header className="sticky top-0 z-50 bg-slate-950/90 border-b border-slate-800 backdrop-blur-md px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-serif font-bold text-lg">
-            Y
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-serif text-lg font-bold text-white tracking-tight">
-                YATRAFLOW CONTROL ROOM
-              </span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold">
-                ADMIN ACCESS
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-serif font-bold text-lg group-hover:border-amber-400 transition-colors">
+              Y
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-lg font-bold text-white tracking-tight">
+                  YATRAFLOW CONTROL ROOM
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 font-bold">
+                  ADMIN ACCESS
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400">
+                Shree Jagannath Temple Destination Engine (Puri)
               </span>
             </div>
-            <span className="text-[10px] text-slate-400">
-              Shree Jagannath Temple Destination Engine (Puri)
-            </span>
-          </div>
+          </Link>
         </div>
 
         <div className="flex items-center gap-4 text-xs">
@@ -72,9 +84,9 @@ export default function AdminControlPanel() {
 
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-950/50 hover:bg-red-900/60 border border-red-500/30 text-red-300 hover:text-white transition-all text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-red-950/60 hover:bg-red-900 border border-red-500/40 text-red-200 hover:text-white transition-all text-xs font-bold cursor-pointer active:scale-95 shadow-md"
           >
-            <LogOut className="w-3.5 h-3.5" />
+            <LogOut className="w-4 h-4 text-red-400" />
             Logout
           </button>
         </div>
