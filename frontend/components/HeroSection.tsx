@@ -5,11 +5,22 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Users, Activity, Play, Pause, ArrowUpRight, ShieldCheck, MapPin } from "lucide-react";
 import TempleDigitalTwin from "./3d/TempleDigitalTwin";
 
-export default function HeroSection() {
-  const [densityLevel, setDensityLevel] = useState<"low" | "moderate" | "high" | "critical">("high");
+interface HeroSectionProps {
+  densityLevel?: "low" | "moderate" | "high" | "critical";
+  setDensityLevel?: (level: "low" | "moderate" | "high" | "critical") => void;
+}
+
+export default function HeroSection({
+  densityLevel: externalDensity,
+  setDensityLevel: externalSetDensity,
+}: HeroSectionProps) {
+  const [internalDensityLevel, setInternalDensityLevel] = useState<"low" | "moderate" | "high" | "critical">("high");
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
   const [selectedSite, setSelectedSite] = useState<"puri" | "vaishnodevi">("puri");
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+
+  const densityLevel = externalDensity || internalDensityLevel;
+  const setDensityLevel = externalSetDensity || setInternalDensityLevel;
 
   // Elderly-Friendly, Simple Phrasing Ticker
   const simplePhrases = [
@@ -45,7 +56,7 @@ export default function HeroSection() {
     }, 4500);
 
     return () => clearInterval(interval);
-  }, [isSimulating]);
+  }, [isSimulating, setDensityLevel]);
 
   const densityBadgeConfig = {
     low: { label: "LOW LOAD (15-25%)", color: "bg-emerald-950/90 text-emerald-400 border-emerald-500/50" },
