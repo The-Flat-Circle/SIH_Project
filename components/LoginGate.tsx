@@ -21,9 +21,11 @@ const AUTHORIZED_ADMIN_EMAILS = [
 export function LoginGate({
   authError,
   setAuthError,
+  onAuthSuccess,
 }: {
   authError: string;
   setAuthError: (err: string) => void;
+  onAuthSuccess?: (user: any) => void;
 }) {
   const router = useRouter();
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
@@ -63,16 +65,18 @@ export function LoginGate({
           setAuthError(`ACCESS DENIED: ${userEmail} is not authorized for Admin Control Room access.`);
           await supabase.auth.signOut();
         } else if (isAuthorized) {
+          if (onAuthSuccess) onAuthSuccess(session.user);
           sessionStorage.setItem("yatra_admin_user", userEmail);
           router.push("/admin");
         } else {
+          if (onAuthSuccess) onAuthSuccess(session.user);
           router.push("/");
         }
       }
     };
 
     checkUserSession();
-  }, [activeRoleTab, router, setAuthError]);
+  }, [activeRoleTab, onAuthSuccess, router, setAuthError]);
 
   const handleGoogleLogin = async () => {
     setAuthError("");
