@@ -25,23 +25,23 @@ interface HeroSectionProps {
 export default function HeroSection({ densityLevel, setDensityLevel }: HeroSectionProps) {
   const [phraseIndex, setPhraseIndex] = useState(0);
 
-  // Dynamic Synonym Phrases for continuous 0.8s animation
-  const dynamicPhrases = [
+  // Simple, clear phrases for elderly visitors & families (3.0 second comfortable interval)
+  const simplePhrases = [
     "Predict crowd congestion.",
-    "Forecast queue bottlenecks.",
-    "Anticipate visitor surges.",
-    "Preempt temple overcrowding.",
-    "Optimize pilgrimage flow.",
-    "Detect spatial bottlenecks.",
+    "Avoid long queue lines.",
+    "Find easy temple entry.",
+    "Plan peaceful visits.",
+    "Check live waiting time.",
+    "Discover nearby spots.",
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setPhraseIndex((prev) => (prev + 1) % dynamicPhrases.length);
-    }, 1000); // 1.0 second ticker interval
+      setPhraseIndex((prev) => (prev + 1) % simplePhrases.length);
+    }, 3200); // 3.2 seconds interval for easy, comfortable reading
 
     return () => clearInterval(interval);
-  }, [dynamicPhrases.length]);
+  }, [simplePhrases.length]);
 
   const heritageSites = [
     { name: "Jagannath Temple, Puri", status: "FLAGSHIP PILOT", active: true },
@@ -83,18 +83,18 @@ export default function HeroSection({ densityLevel, setDensityLevel }: HeroSecti
           {/* Left Column: Animated Headline & Pitch */}
           <div className="lg:col-span-6 space-y-6">
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.12] text-parchment tracking-tight drop-shadow-lg min-h-[140px] sm:min-h-[160px] flex flex-col justify-start">
-              {/* Dynamic Animated Synonym Text Ticker */}
-              <span className="block relative overflow-hidden text-temple-gold font-semibold pb-1">
+              {/* Dynamic Animated Simple Phrase Ticker in White (Parchment) */}
+              <span className="block relative overflow-hidden text-parchment font-normal pb-1">
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={phraseIndex}
-                    initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+                    initial={{ y: 15, opacity: 0, filter: "blur(3px)" }}
                     animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                    exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    exit={{ y: -15, opacity: 0, filter: "blur(3px)" }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
                     className="block"
                   >
-                    {dynamicPhrases[phraseIndex]}
+                    {simplePhrases[phraseIndex]}
                   </motion.span>
                 </AnimatePresence>
               </span>
