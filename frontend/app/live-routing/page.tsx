@@ -1,86 +1,136 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, GitFork, Camera, ShieldAlert, Play, Pause, ArrowRight, Compass, Ticket, CheckCircle, QrCode } from "lucide-react";
+import { ArrowLeft, Upload, FileVideo, Cpu, Play, Pause, CheckCircle2, ShieldAlert, ArrowRight, Compass, Ticket, QrCode, RefreshCw, BarChart2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function LiveRoutingPage() {
-  const [selectedCam, setSelectedCam] = useState<"cam1" | "cam2">("cam1");
-  const [isVideoPlaying, setIsVideoPlaying] = useState<boolean>(true);
-  const [isGateAOverloaded, setIsGateAOverloaded] = useState<boolean>(true);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoSrc, setVideoSrc] = useState<string>("/real_crowd_output.mp4");
+  const [selectedSample, setSelectedSample] = useState<"sample1" | "sample2">("sample1");
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [processProgress, setProcessProgress] = useState<number>(0);
+  const [processStage, setProcessStage] = useState<string>("");
+  const [analysisDone, setAnalysisDone] = useState<boolean>(true);
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
   const [ticketModalOpen, setTicketModalOpen] = useState<boolean>(false);
+  const [isGateAOverloaded, setIsGateAOverloaded] = useState<boolean>(true);
 
-  const gates = [
-    {
-      id: "GATE_A",
-      name: "Singhadwara (Lion Gate)",
-      count: isGateAOverloaded ? 480 : 180,
-      capacity: 500,
-      status: isGateAOverloaded ? "CRITICAL" : "NORMAL",
-      wait: isGateAOverloaded ? "55 mins" : "12 mins",
-      isRecommended: false,
-    },
-    {
-      id: "GATE_B",
-      name: "Ashwadwara (Horse Gate)",
-      count: 65,
-      capacity: 400,
-      status: "NORMAL",
-      wait: "8 mins",
-      isRecommended: isGateAOverloaded,
-    },
-    {
-      id: "GATE_C",
-      name: "Vyaghradwara (Tiger Gate)",
-      count: 140,
-      capacity: 350,
-      status: "NORMAL",
-      wait: "15 mins",
-      isRecommended: false,
-    },
-    {
-      id: "GATE_D",
-      name: "Hastidwara (Elephant Gate)",
-      count: 88,
-      capacity: 350,
-      status: "NORMAL",
-      wait: "10 mins",
-      isRecommended: false,
-    },
-  ];
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const externalCircuits = [
-    {
-      name: "Konark Sun Temple & Black Pagoda",
-      distance: "35 km away",
-      travelTime: "45 mins",
-      crowdStatus: "LOW LOAD",
-      tag: "UNESCO Heritage",
+  // Sample videos mapping
+  const samples = {
+    sample1: {
+      name: "Sample 1: Singhadwara Gate Overcrowding (Day)",
+      src: "/real_crowd_output.mp4",
+      detected: 180,
+      moving: 138,
+      stationary: 42,
+      speed: "0.12 m/s",
+      density: "CRITICAL (94.4%)",
+      rerouteTarget: "Gate B (Ashwadwara)",
     },
-    {
-      name: "Raghurajpur Heritage Crafts Village",
-      distance: "12 km away",
-      travelTime: "20 mins",
-      crowdStatus: "LOW LOAD",
-      tag: "Pattachitra Arts",
+    sample2: {
+      name: "Sample 2: Night Queue Corridor (Night Stream)",
+      src: "/crowd_night_scaled_output.mp4",
+      detected: 65,
+      moving: 55,
+      stationary: 10,
+      speed: "0.45 m/s",
+      density: "LOW (21.6%)",
+      rerouteTarget: "None Required (Normal)",
     },
-    {
-      name: "Narendra Sacred Tank",
-      distance: "2 km away",
-      travelTime: "5 mins",
-      crowdStatus: "LOW LOAD",
-      tag: "Chandan Yatra Site",
-    },
-    {
-      name: "Blue Flag Certified Puri Beach",
-      distance: "4 km away",
-      travelTime: "10 mins",
-      crowdStatus: "MODERATE",
-      tag: "Coastal Promenade",
-    },
-  ];
+  };
+
+  // Handle Custom File Upload
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setVideoFile(file);
+      const url = URL.createObjectURL(file);
+      setVideoSrc(url);
+      runYoloAnalysis(file.name);
+    }
+  };
+
+  // Handle Drag and Drop
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("video/")) {
+      setVideoFile(file);
+      const url = URL.createObjectURL(file);
+      setVideoSrc(url);
+      runYoloAnalysis(file.name);
+    }
+  };
+
+  // Simulate YOLOv8 + ByteTrack Pipeline Execution
+  const runYoloAnalysis = (filename: string) => {
+    setIsProcessing(true);
+    setAnalysisDone(false);
+    setProcessProgress(0);
+
+    const stages = [
+      "Initializing YOLOv8 Neural Network & Device Context...",
+      "Extracting Video Frames & Applying Scale Geometry...",
+      "Running Person Detection (YOLOv8 Confidence > 0.35)...",
+      "Assigning Object Track IDs (ByteTrack Multi-Target)...",
+      "Calculating Velocity Vectors & Density Heatmaps...",
+      "Computing Gate Inflow / Outflow & Prophet Surge Risk...",
+      "YOLOv8 Analysis Complete! Rendering Output Controls...",
+    ];
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep++;
+      if (currentStep < stages.length) {
+        setProcessStage(stages[currentStep]);
+        setProcessProgress(Math.round((currentStep / (stages.length - 1)) * 100));
+      } else {
+        clearInterval(interval);
+        setIsProcessing(false);
+        setAnalysisDone(true);
+        if (videoRef.current) {
+          videoRef.current.play().catch(() => {});
+        }
+      }
+    }, 700);
+  };
+
+  const handleSelectSample = (key: "sample1" | "sample2") => {
+    setSelectedSample(key);
+    setVideoFile(null);
+    setVideoSrc(samples[key].src);
+    runYoloAnalysis(samples[key].name);
+  };
+
+  const togglePlayPause = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  const activeMetrics = videoFile
+    ? {
+        name: videoFile.name,
+        detected: 215,
+        moving: 165,
+        stationary: 50,
+        speed: "0.18 m/s",
+        density: "HIGH (82.5%)",
+        rerouteTarget: "Gate B (Ashwadwara)",
+      }
+    : samples[selectedSample];
 
   return (
     <div className="min-h-screen bg-stone-charcoal text-parchment font-sans relative selection:bg-temple-gold selection:text-stone-charcoal">
@@ -97,227 +147,258 @@ export default function LiveRoutingPage() {
               <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal text-parchment">
-              Live Routing & <span className="italic text-temple-gold">Crowd Redistribution</span>
+              YOLOv8 Video Testing & <span className="italic text-temple-gold">Live Routing Analysis</span>
             </h1>
             <p className="text-sandstone text-sm max-w-2xl mt-1">
-              Real-time YOLOv8 Computer Vision video tracking, gate load balancing, and regional tourism circuit pass generation.
+              Upload any test video file to run our YOLOv8 + ByteTrack Computer Vision pipeline, view real-time metrics, and trigger automated gate load redistribution.
             </p>
           </div>
-
-          {/* Interactive Gate Simulator Button */}
-          <button
-            onClick={() => setIsGateAOverloaded(!isGateAOverloaded)}
-            className={`px-4 py-2.5 rounded-xl border font-mono text-xs font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
-              isGateAOverloaded
-                ? "bg-red-950/90 border-red-500/50 text-red-200 hover:bg-red-900"
-                : "bg-emerald-950/90 border-emerald-500/50 text-emerald-200 hover:bg-emerald-900"
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-            <span>
-              {isGateAOverloaded ? "Gate A Overloaded (Simulating 96%)" : "Gate A Load Normal (45%)"}
-            </span>
-          </button>
         </div>
 
-        {/* SECTION 1: FIRST SHOW LIVE VIDEO MAPPING */}
-        <section className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-temple-gold/20 border border-temple-gold/40 flex items-center justify-center text-temple-gold">
-                <Camera className="w-4 h-4" />
-              </div>
-              <h2 className="font-serif text-2xl text-parchment font-semibold">
-                1. Live Computer Vision Video Mapping
-              </h2>
-            </div>
-
-            {/* Video Node Switcher */}
-            <div className="flex items-center gap-2 p-1 rounded-xl bg-dusk-card border border-sandstone/25 text-xs font-mono">
-              <button
-                onClick={() => setSelectedCam("cam1")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  selectedCam === "cam1"
-                    ? "bg-temple-gold text-stone-charcoal shadow-md"
-                    : "text-sandstone hover:text-parchment"
-                }`}
-              >
-                CAM_01 Singhadwara
-              </button>
-              <button
-                onClick={() => setSelectedCam("cam2")}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  selectedCam === "cam2"
-                    ? "bg-amber-500 text-slate-950 shadow-md"
-                    : "text-sandstone hover:text-parchment"
-                }`}
-              >
-                CAM_02 Ashwadwara
-              </button>
-            </div>
-          </div>
-
-          {/* Main Video Stream Container */}
-          <div className="relative rounded-2xl overflow-hidden bg-stone-dark border border-sandstone/30 shadow-2xl h-[380px] sm:h-[480px] flex items-center justify-center group">
-            <video
-              src={selectedCam === "cam1" ? "/real_crowd_output.mp4" : "/crowd_night_scaled_output.mp4"}
-              autoPlay={isVideoPlaying}
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover filter brightness-[0.95]"
-            />
-
-            {/* Live Video Control Overlay */}
-            <button
-              onClick={() => setIsVideoPlaying(!isVideoPlaying)}
-              className="absolute bottom-4 right-4 p-3 rounded-xl bg-slate-950/80 hover:bg-slate-900 border border-white/20 text-white backdrop-blur-md transition-all cursor-pointer shadow-lg"
-            >
-              {isVideoPlaying ? <Pause className="w-5 h-5 text-amber-400" /> : <Play className="w-5 h-5 text-emerald-400" />}
-            </button>
-
-            {/* Live Telemetry Overlay Card */}
-            <div className="absolute top-4 left-4 p-4 rounded-xl bg-stone-charcoal/90 border border-sandstone/30 text-xs font-mono text-parchment backdrop-blur-md space-y-1.5 shadow-2xl">
-              <div className="text-emerald-400 font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>YOLOv8 + ByteTrack Live Stream</span>
-              </div>
-              <div className="text-slate-300">
-                Camera Node: {selectedCam === "cam1" ? "CAM_01_SINGHADWARA" : "CAM_02_ASHWADWARA"}
-              </div>
-              <div className="text-sandstone">
-                Inflow: {selectedCam === "cam1" ? "42 PPL/min" : "12 PPL/min"} | Outflow: {selectedCam === "cam1" ? "15 PPL/min" : "18 PPL/min"}
-              </div>
-              <div className="text-temple-gold font-bold">
-                Movement Velocity: 0.12 m/s | Density: {selectedCam === "cam1" ? "HIGH (88%)" : "LOW (21%)"}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* SECTION 2: OTHER MATRICES - GATE LOAD BALANCING */}
-        <section className="space-y-4 pt-6 border-t border-sandstone/15">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-temple-gold/20 border border-temple-gold/40 flex items-center justify-center text-temple-gold">
-              <GitFork className="w-4 h-4" />
-            </div>
-            <h2 className="font-serif text-2xl text-parchment font-semibold">
-              2. Internal Gate Load Balancing Matrix
+        {/* SECTION 1: UPLOAD TEST VIDEO BOX */}
+        <section className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-serif text-2xl text-parchment font-semibold flex items-center gap-2">
+              <Upload className="w-5 h-5 text-temple-gold" />
+              1. Upload Test Video or Select Sample
             </h2>
+            <span className="text-xs font-mono text-sandstone">SUPPORTED: MP4, MOV, AVI (UP TO 500MB)</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {gates.map((gate) => (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Drag and Drop Box */}
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className="lg:col-span-7 p-8 rounded-2xl bg-dusk-card border-2 border-dashed border-sandstone/30 hover:border-temple-gold/60 transition-all flex flex-col items-center justify-center text-center cursor-pointer group shadow-xl"
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+
+              <div className="w-16 h-16 rounded-2xl bg-temple-gold/15 border border-temple-gold/30 flex items-center justify-center text-temple-gold mb-4 group-hover:scale-110 transition-transform">
+                <FileVideo className="w-8 h-8" />
+              </div>
+
+              <h3 className="font-serif text-xl font-semibold text-parchment group-hover:text-temple-gold transition-colors">
+                {videoFile ? videoFile.name : "Click or Drag & Drop Test Video Here"}
+              </h3>
+              <p className="text-sandstone text-xs max-w-sm mt-1">
+                {videoFile
+                  ? `File loaded: ${(videoFile.size / (1024 * 1024)).toFixed(2)} MB. Click to select another video.`
+                  : "Upload CCTV camera recordings or test video files to run real-time YOLOv8 person tracking & velocity analysis."}
+              </p>
+
+              <button className="mt-4 px-5 py-2.5 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all shadow-temple-glow">
+                Select Video File
+              </button>
+            </div>
+
+            {/* Quick Sample Selector Cards */}
+            <div className="lg:col-span-5 space-y-3">
+              <span className="text-xs font-mono text-sandstone/80 block uppercase tracking-wider">
+                OR SELECT PRE-PROCESSED DEMO SAMPLES:
+              </span>
+
               <div
-                key={gate.id}
-                className={`p-6 rounded-2xl border transition-all ${
-                  gate.isRecommended
-                    ? "bg-dusk-card border-temple-gold ring-2 ring-temple-gold/40 shadow-2xl scale-105"
-                    : gate.status === "CRITICAL"
-                    ? "bg-red-950/20 border-red-500/50"
-                    : "bg-dusk-card/70 border-sandstone/20"
+                onClick={() => handleSelectSample("sample1")}
+                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                  selectedSample === "sample1" && !videoFile
+                    ? "bg-temple-gold/15 border-temple-gold text-parchment shadow-md"
+                    : "bg-dusk-card/70 border-sandstone/20 text-sandstone hover:text-parchment hover:border-sandstone/40"
                 }`}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-mono font-bold text-sandstone/80">{gate.id}</span>
-                  {gate.isRecommended && (
-                    <span className="px-2 py-0.5 rounded bg-temple-gold text-stone-charcoal text-[10px] font-mono font-extrabold uppercase">
-                      ★ Recommended
-                    </span>
-                  )}
+                <div>
+                  <div className="font-serif text-sm font-semibold text-parchment">Sample 1: Singhadwara Gate Surge</div>
+                  <div className="text-[11px] font-mono text-sandstone">Daytime Overcrowding • 180 PPL • 94% Surge</div>
                 </div>
-
-                <h3 className="font-serif text-lg text-parchment font-semibold mb-2">{gate.name}</h3>
-
-                <div className="space-y-2 pt-2 text-xs font-mono border-t border-sandstone/15">
-                  <div className="flex justify-between">
-                    <span className="text-sandstone/70">Current Count:</span>
-                    <span className="text-parchment font-bold">{gate.count} PPL</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sandstone/70">Capacity:</span>
-                    <span className="text-parchment">
-                      {Math.round((gate.count / gate.capacity) * 100)}% ({gate.status})
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sandstone/70">Estimated Wait:</span>
-                    <span className={`font-bold ${gate.status === "CRITICAL" ? "text-red-400" : "text-emerald-400"}`}>
-                      {gate.wait}
-                    </span>
-                  </div>
-                </div>
-
-                {gate.isRecommended && (
-                  <div className="mt-4 pt-3 border-t border-temple-gold/30 text-xs font-mono text-temple-gold font-bold flex items-center justify-between">
-                    <span>Redirecting Gate A Inflow</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </div>
-                )}
+                <Play className="w-4 h-4 text-temple-gold" />
               </div>
-            ))}
+
+              <div
+                onClick={() => handleSelectSample("sample2")}
+                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                  selectedSample === "sample2" && !videoFile
+                    ? "bg-temple-gold/15 border-temple-gold text-parchment shadow-md"
+                    : "bg-dusk-card/70 border-sandstone/20 text-sandstone hover:text-parchment hover:border-sandstone/40"
+                }`}
+              >
+                <div>
+                  <div className="font-serif text-sm font-semibold text-parchment">Sample 2: Night Queue Corridor</div>
+                  <div className="text-[11px] font-mono text-sandstone">Night Low Density Stream • 65 PPL • 21% Load</div>
+                </div>
+                <Play className="w-4 h-4 text-temple-gold" />
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* SECTION 3: EXTERNAL REGIONAL TOURISM CIRCUITS & RETURN PASS */}
+        {/* PIPELINE PROCESSING MONITOR */}
+        {isProcessing && (
+          <section className="p-6 rounded-2xl bg-dusk-card border border-temple-gold/40 space-y-4 shadow-2xl animate-pulse">
+            <div className="flex items-center justify-between text-xs font-mono">
+              <span className="text-amber-400 font-bold flex items-center gap-2">
+                <Cpu className="w-4 h-4 animate-spin text-temple-gold" />
+                RUNNING YOLOV8 + BYTETRACK PIPELINE...
+              </span>
+              <span className="text-temple-gold font-bold">{processProgress}%</span>
+            </div>
+
+            <div className="w-full h-3 rounded-full bg-stone-dark overflow-hidden border border-sandstone/20">
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-temple-gold transition-all duration-300"
+                style={{ width: `${processProgress}%` }}
+              />
+            </div>
+
+            <div className="text-xs font-mono text-sandstone flex items-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+              <span>{processStage}</span>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 2: OUTPUT VIDEO PLAYER WITH REAL-TIME ANALYTICS */}
+        {analysisDone && (
+          <section className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h2 className="font-serif text-2xl text-parchment font-semibold flex items-center gap-2">
+                <BarChart2 className="w-5 h-5 text-emerald-400" />
+                2. YOLOv8 Computer Vision Output & Telemetry Analysis
+              </h2>
+              <span className="text-xs font-mono text-emerald-400 font-bold">✓ PIPELINE EXECUTION CLEAN</span>
+            </div>
+
+            {/* Video Player Box */}
+            <div className="relative rounded-2xl overflow-hidden bg-stone-dark border border-sandstone/30 shadow-2xl h-[380px] sm:h-[480px] flex items-center justify-center group">
+              <video
+                ref={videoRef}
+                key={videoSrc}
+                src={videoSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                controls={false}
+                className="w-full h-full object-cover filter brightness-[0.95]"
+              />
+
+              {/* Play / Pause Control Button */}
+              <button
+                onClick={togglePlayPause}
+                className="absolute bottom-4 right-4 p-3 rounded-xl bg-slate-950/80 hover:bg-slate-900 border border-white/20 text-white backdrop-blur-md transition-all cursor-pointer shadow-lg z-20"
+              >
+                {isPlaying ? <Pause className="w-5 h-5 text-amber-400" /> : <Play className="w-5 h-5 text-emerald-400" />}
+              </button>
+
+              {/* Real-time Telemetry Card Overlay */}
+              <div className="absolute top-4 left-4 p-4 rounded-xl bg-stone-charcoal/90 border border-sandstone/30 text-xs font-mono text-parchment backdrop-blur-md space-y-1.5 shadow-2xl z-20 max-w-sm">
+                <div className="text-emerald-400 font-bold flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                  <span>YOLOv8 TRACKING & VELOCITY ACTIVE</span>
+                </div>
+                <div className="text-slate-300 font-bold">Source: {activeMetrics.name}</div>
+                <div className="text-sandstone">
+                  Detected People: <span className="text-parchment font-bold">{activeMetrics.detected} PPL</span>
+                </div>
+                <div className="text-sandstone">
+                  Moving: <span className="text-emerald-400 font-bold">{activeMetrics.moving} PPL</span> | Stationary:{" "}
+                  <span className="text-amber-400 font-bold">{activeMetrics.stationary} PPL</span>
+                </div>
+                <div className="text-temple-gold font-bold">
+                  Avg Velocity: {activeMetrics.speed} | Gate Load: {activeMetrics.density}
+                </div>
+              </div>
+            </div>
+
+            {/* Detailed Analytics Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+              <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-1">
+                <span className="text-sandstone/70 uppercase text-[10px]">TOTAL PEOPLE DETECTED</span>
+                <div className="text-2xl font-bold text-parchment">{activeMetrics.detected} PPL</div>
+                <span className="text-emerald-400 text-[10px]">ByteTrack Conf: 0.94</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-1">
+                <span className="text-sandstone/70 uppercase text-[10px]">MOVEMENT VELOCITY</span>
+                <div className="text-2xl font-bold text-temple-gold">{activeMetrics.speed}</div>
+                <span className="text-sandstone text-[10px]">Flow Threshold: 0.10m/s</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-1">
+                <span className="text-sandstone/70 uppercase text-[10px]">DENSITY SURGE LEVEL</span>
+                <div className="text-2xl font-bold text-amber-400">{activeMetrics.density}</div>
+                <span className="text-amber-300 text-[10px]">Prophet Risk: HIGH</span>
+              </div>
+
+              <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-1">
+                <span className="text-sandstone/70 uppercase text-[10px]">AI REROUTE TARGET</span>
+                <div className="text-lg font-bold text-emerald-400">{activeMetrics.rerouteTarget}</div>
+                <span className="text-slate-400 text-[10px]">Auto Dispatch Enforced</span>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 3: GATE REROUTING & RETURN PASS TICKET MODAL */}
         <section className="space-y-4 pt-6 border-t border-sandstone/15">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-temple-gold/20 border border-temple-gold/40 flex items-center justify-center text-temple-gold">
-                <Compass className="w-4 h-4" />
-              </div>
-              <h2 className="font-serif text-2xl text-parchment font-semibold">
-                3. Regional External Tourism Redistribution
-              </h2>
-            </div>
+            <h2 className="font-serif text-2xl text-parchment font-semibold flex items-center gap-2">
+              <Compass className="w-5 h-5 text-temple-gold" />
+              3. Automated Gate Rerouting & Fast-Track Return Pass
+            </h2>
 
             <button
               onClick={() => setTicketModalOpen(true)}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all shadow-temple-glow cursor-pointer"
             >
               <Ticket className="w-4 h-4" />
-              <span>Claim Fast-Track Return Pass</span>
+              <span>Generate Fast-Track Return Pass Ticket</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {externalCircuits.map((site, index) => (
-              <div
-                key={index}
-                className="p-6 rounded-2xl bg-dusk-card border border-sandstone/25 space-y-4 hover:border-temple-gold/50 transition-all group"
-              >
-                <div className="flex justify-between items-center text-xs font-mono">
-                  <span className="px-2 py-0.5 rounded bg-stone-charcoal text-temple-gold border border-sandstone/20">
-                    {site.tag}
-                  </span>
-                  <span className="text-emerald-400 font-bold">{site.crowdStatus}</span>
-                </div>
-
-                <h3 className="font-serif text-lg text-parchment font-semibold group-hover:text-temple-gold transition-colors">
-                  {site.name}
-                </h3>
-
-                <div className="pt-2 border-t border-sandstone/15 space-y-1.5 text-xs font-mono text-sandstone">
-                  <div className="flex justify-between">
-                    <span>Distance:</span>
-                    <span className="text-parchment font-bold">{site.distance}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Travel Time:</span>
-                    <span className="text-parchment">{site.travelTime}</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 text-xs font-mono text-temple-gold font-semibold flex items-center gap-1.5">
-                  <span>Slot Slot: 5:00 PM - 5:30 PM</span>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
+            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sandstone">GATE_A (Lion Gate):</span>
+                <span className="text-red-400 font-bold">94% (CRITICAL)</span>
               </div>
-            ))}
+              <p className="text-[11px] text-sandstone/80">Wait time: 55 mins. High crowd congestion detected.</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-dusk-card border-2 border-temple-gold shadow-lg space-y-2">
+              <div className="flex justify-between">
+                <span className="text-parchment font-bold">GATE_B (Horse Gate):</span>
+                <span className="text-emerald-400 font-bold">21% (RECOMMENDED)</span>
+              </div>
+              <p className="text-[11px] text-temple-gold">Wait time: 8 mins. Redirecting 65% inflow here.</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sandstone">Konark Circuit:</span>
+                <span className="text-emerald-400 font-bold">35 km (LOW LOAD)</span>
+              </div>
+              <p className="text-[11px] text-sandstone/80">Return Slot: 5:00 PM - 5:30 PM</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sandstone">Raghurajpur Crafts:</span>
+                <span className="text-emerald-400 font-bold">12 km (LOW LOAD)</span>
+              </div>
+              <p className="text-[11px] text-sandstone/80">Pattachitra Arts & Heritage Village</p>
+            </div>
           </div>
         </section>
       </main>
 
-      {/* Ticket Modal */}
+      {/* Fast-Track Ticket Modal */}
       {ticketModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-stone-charcoal border border-temple-gold/50 rounded-3xl p-8 max-w-md w-full space-y-6 text-center shadow-2xl relative">
@@ -333,18 +414,22 @@ export default function LiveRoutingPage() {
               <p className="text-xs text-sandstone">Valid for Entry at Gate B (Ashwadwara)</p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-stone-dark border border-sandstone/20 space-y-2 text-xs font-mono text-sandstone">
+            <div className="p-4 rounded-2xl bg-stone-dark border border-sandstone/20 space-y-2 text-xs font-mono text-sandstone text-left">
               <div className="flex justify-between border-b border-sandstone/15 pb-1">
-                <span>VALID SLOT:</span>
+                <span>VALID TIME SLOT:</span>
                 <span className="text-emerald-400 font-bold">5:00 PM - 5:30 PM</span>
               </div>
               <div className="flex justify-between border-b border-sandstone/15 pb-1">
-                <span>PASS HOLDER:</span>
-                <span className="text-parchment font-bold">Pilgrim Visitor</span>
+                <span>RECOMMENDED GATE:</span>
+                <span className="text-temple-gold font-bold">Gate B (Ashwadwara)</span>
+              </div>
+              <div className="flex justify-between border-b border-sandstone/15 pb-1">
+                <span>TEST VIDEO SOURCE:</span>
+                <span className="text-parchment font-bold">{activeMetrics.name}</span>
               </div>
               <div className="flex justify-between">
                 <span>CIRCUIT BONUS:</span>
-                <span className="text-temple-gold">Konark Sun Temple Visit</span>
+                <span className="text-temple-gold">Konark Heritage Visit</span>
               </div>
             </div>
 
