@@ -13,7 +13,7 @@ export default function AdminControlPanel() {
     "[SYSTEM_INIT] FastAPI Gateway connected to Supabase PostgreSQL at 20:23:00Z",
     "[CV_INGEST] CAM_01_SINGHADWARA: 180 PPL detected (YOLOv8 + ByteTrack confidence: 0.94)",
     "[ANALYTICS] Prophet 15-min forecast computed: Gate_A surge probability 84%",
-    "[REROUTING] Auto-recommendation generated: Redirect 60% inflow from Gate_A -> Gate_B",
+    "[REROUTING] Auto-recommendation generated: Redirect 60% inflow from Gate_A to Gate_B",
   ]);
 
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function AdminControlPanel() {
     setOverrideActive(!overrideActive);
     const newLog = overrideActive
       ? "[OVERRIDE_RESET] Manual gate lock released. Reverting to automated AI flow rules."
-      : "[OVERRIDE_TRIGGERED] MANUAL GATE LOCK ENFORCED BY ADMIN. Redirecting Gate A -> Gate E.";
+      : "[OVERRIDE_TRIGGERED] MANUAL GATE LOCK ENFORCED BY ADMIN. Redirecting Gate A to Gate E.";
     setLogs((prev) => [newLog, ...prev]);
   };
 
@@ -200,7 +200,7 @@ export default function AdminControlPanel() {
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-400">AUTOMATED RECOMMENDATION:</span>
-                <span className="text-amber-300 font-bold">Redirect Gate A -> Gate B</span>
+                <span className="text-amber-300 font-bold">Redirect Gate A to Gate B</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">PROPOSED RETURN SLOT:</span>
