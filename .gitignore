@@ -1,11 +1,14 @@
 # dependencies
-/node_modules
+node_modules
+frontend/node_modules
 /.pnpm
 /.yarn
 
 # next.js build output
-/.next/
-/out/
+.next/
+frontend/.next/
+out/
+frontend/out/
 
 # logs
 *.log
@@ -16,6 +19,7 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+frontend/.env*.local
 
 # vercel
 .vercel
