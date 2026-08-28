@@ -5,11 +5,22 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html, Float } from "@react-three/drei";
 import * as THREE from "three";
 
+export type SupportedSite = "puri" | "vaishnodevi" | "tirupati" | "varanasi" | "kedarnath" | "siddhivinayak";
+
 interface TempleProps {
   densityLevel: "low" | "moderate" | "high" | "critical";
-  selectedSite?: "puri" | "vaishnodevi";
-  onSelectSite?: (site: "puri" | "vaishnodevi") => void;
+  selectedSite?: SupportedSite;
+  onSelectSite?: (site: SupportedSite) => void;
 }
+
+const DESTINATIONS_LIST: { id: SupportedSite; name: string; hasTwin: boolean }[] = [
+  { id: "puri", name: "Puri Shree Mandira", hasTwin: true },
+  { id: "vaishnodevi", name: "Mata Vaishno Devi", hasTwin: true },
+  { id: "tirupati", name: "Tirupati Balaji", hasTwin: false },
+  { id: "varanasi", name: "Kashi Vishwanath", hasTwin: false },
+  { id: "kedarnath", name: "Kedarnath Dham", hasTwin: false },
+  { id: "siddhivinayak", name: "Siddhivinayak Mumbai", hasTwin: false },
+];
 
 // Low-Poly Stylized Puri Jagannath Gopuram Architecture
 function PuriGopuramStructure({ densityLevel }: { densityLevel: string }) {
@@ -40,7 +51,6 @@ function PuriGopuramStructure({ densityLevel }: { densityLevel: string }) {
 
   return (
     <group ref={groupRef} position={[0, -1.0, 0]}>
-      {/* Outer Temple Enclosure Boundary */}
       <mesh position={[0, 0.1, 0]}>
         <boxGeometry args={[3.8, 0.18, 3.8]} />
         <meshStandardMaterial color="#211C18" roughness={0.7} metalness={0.2} />
@@ -50,19 +60,16 @@ function PuriGopuramStructure({ densityLevel }: { densityLevel: string }) {
         <lineBasicMaterial color="#C9B896" opacity={0.4} transparent />
       </lineSegments>
 
-      {/* Main Temple Platform */}
       <mesh position={[0, 0.35, 0]}>
         <boxGeometry args={[2.8, 0.35, 2.8]} />
         <meshStandardMaterial color="#1B2A44" roughness={0.5} />
       </mesh>
 
-      {/* Lower Deula */}
       <mesh position={[0, 0.8, 0]}>
         <boxGeometry args={[2.2, 0.55, 2.2]} />
         <meshStandardMaterial color="#293D61" roughness={0.4} />
       </mesh>
 
-      {/* Mid Shikhara Pyramid Layers */}
       <mesh position={[0, 1.35, 0]}>
         <cylinderGeometry args={[0.8, 1.0, 0.55, 4]} />
         <meshStandardMaterial color="#142035" roughness={0.3} />
@@ -73,31 +80,21 @@ function PuriGopuramStructure({ densityLevel }: { densityLevel: string }) {
         <meshStandardMaterial color="#19273E" roughness={0.3} />
       </mesh>
 
-      {/* Spire Peak */}
       <mesh position={[0, 2.2, 0]}>
         <cylinderGeometry args={[0.3, 0.5, 0.35, 4]} />
         <meshStandardMaterial color="#211C18" roughness={0.2} />
       </mesh>
 
-      {/* Amalaka */}
       <mesh position={[0, 2.48, 0]}>
         <cylinderGeometry args={[0.26, 0.3, 0.12, 12]} />
         <meshStandardMaterial color="#C9973E" metalness={0.6} roughness={0.3} />
       </mesh>
 
-      {/* Kalasha Pinnacle Spire */}
       <mesh position={[0, 2.7, 0]}>
         <coneGeometry args={[0.1, 0.3, 8]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={0.6}
-          metalness={0.8}
-          roughness={0.1}
-        />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.6} metalness={0.8} roughness={0.1} />
       </mesh>
 
-      {/* Neelachakra Flag */}
       <mesh position={[0, 2.92, 0]} rotation={[0, 0, 0.3]}>
         <coneGeometry args={[0.035, 0.22, 3]} />
         <meshStandardMaterial color="#B23A2E" emissive="#B23A2E" emissiveIntensity={0.8} />
@@ -106,7 +103,7 @@ function PuriGopuramStructure({ densityLevel }: { densityLevel: string }) {
   );
 }
 
-// Low-Poly Stylized Mata Vaishno Devi Shrine & Trikuta Mountain Architecture
+// Low-Poly Stylized Mata Vaishno Devi Shrine Architecture
 function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -135,19 +132,16 @@ function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
 
   return (
     <group ref={groupRef} position={[0, -0.9, 0]}>
-      {/* Base Mountain Mass (Trikuta Mountain Range Base) */}
       <mesh position={[0, 0.25, 0]}>
         <cylinderGeometry args={[2.0, 2.7, 0.5, 7]} />
         <meshStandardMaterial color="#1E293B" roughness={0.9} />
       </mesh>
 
-      {/* Mid Mountain Cliff Tier */}
       <mesh position={[0, 0.75, 0]}>
         <cylinderGeometry args={[1.3, 1.8, 0.6, 6]} />
         <meshStandardMaterial color="#334155" roughness={0.8} />
       </mesh>
 
-      {/* Trikuta Peak High Cliffs */}
       <mesh position={[-0.35, 1.45, -0.25]}>
         <coneGeometry args={[0.8, 1.0, 5]} />
         <meshStandardMaterial color="#475569" roughness={0.7} />
@@ -156,23 +150,16 @@ function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
         <coneGeometry args={[0.7, 1.1, 5]} />
         <meshStandardMaterial color="#334155" roughness={0.7} />
       </mesh>
-      <mesh position={[0, 1.8, 0]}>
-        <coneGeometry args={[0.5, 0.95, 5]} />
-        <meshStandardMaterial color="#64748B" roughness={0.6} />
-      </mesh>
 
-      {/* Sacred Bhawan Holy Cave Entrance Complex */}
       <mesh position={[0, 0.8, 1.0]}>
         <boxGeometry args={[1.5, 0.45, 0.7]} />
         <meshStandardMaterial color="#F8FAFC" roughness={0.3} />
       </mesh>
-      {/* Cave Sanctum Gold Archway */}
       <mesh position={[0, 0.8, 1.33]} rotation={[Math.PI / 2, 0, 0]}>
         <cylinderGeometry args={[0.25, 0.25, 0.08, 16]} />
         <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.5} metalness={0.7} />
       </mesh>
 
-      {/* 3 Holy Pindies Glowing Light Beacons */}
       <mesh position={[-0.12, 0.8, 1.22]}>
         <sphereGeometry args={[0.06, 12, 12]} />
         <meshStandardMaterial color="#EF4444" emissive="#EF4444" emissiveIntensity={1.2} />
@@ -186,7 +173,6 @@ function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
         <meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={1.2} />
       </mesh>
 
-      {/* Golden Shrine Dome (Bhawan Kalasha) */}
       <mesh position={[0, 1.15, 1.0]}>
         <sphereGeometry args={[0.25, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
         <meshStandardMaterial color="#EAB308" metalness={0.8} roughness={0.2} />
@@ -195,88 +181,56 @@ function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
         <coneGeometry args={[0.07, 0.25, 8]} />
         <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.8} />
       </mesh>
+    </group>
+  );
+}
 
-      {/* Red Sacred Mata Chuni Flag at Peak */}
-      <mesh position={[0, 2.3, 0]} rotation={[0, 0, 0.2]}>
-        <coneGeometry args={[0.04, 0.25, 3]} />
-        <meshStandardMaterial color="#EF4444" emissive="#EF4444" emissiveIntensity={0.9} />
+// Generic Node Geometry Frame for Upcoming Destination Twins
+function GenericShrineNode() {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.1;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.8, 0]}>
+      <mesh position={[0, 0.2, 0]}>
+        <boxGeometry args={[3.0, 0.2, 3.0]} />
+        <meshStandardMaterial color="#1E293B" roughness={0.8} />
+      </mesh>
+      <mesh position={[0, 0.9, 0]}>
+        <cylinderGeometry args={[1.0, 1.4, 1.2, 6]} />
+        <meshStandardMaterial color="#334155" wireframe />
+      </mesh>
+      <mesh position={[0, 1.8, 0]}>
+        <coneGeometry args={[0.7, 0.9, 6]} />
+        <meshStandardMaterial color="#C9973E" wireframe />
       </mesh>
     </group>
   );
 }
 
-// Particle Point Cloud Assembly
-function ParticleShell({ densityLevel, selectedSite }: { densityLevel: string; selectedSite: string }) {
+// Particle Shell Assembly
+function ParticleShell({ densityLevel }: { densityLevel: string }) {
   const count = 1000;
   const pointsRef = useRef<THREE.Points>(null);
 
-  const [positions, initialPositions] = useMemo(() => {
+  const [positions] = useMemo(() => {
     const pos = new Float32Array(count * 3);
-    const initPos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
       const radius = 1.5 + Math.random() * 1.3;
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(Math.random() * 2 - 1);
 
-      const x = radius * Math.sin(phi) * Math.cos(theta);
-      const y = radius * Math.sin(phi) * Math.sin(theta) + 0.4;
-      const z = radius * Math.cos(phi);
-
-      pos[i * 3] = x;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = z;
-
-      initPos[i * 3] = x * (2.2 + Math.random() * 2);
-      initPos[i * 3 + 1] = y * (2.2 + Math.random() * 2);
-      initPos[i * 3 + 2] = z * (2.2 + Math.random() * 2);
+      pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta) + 0.4;
+      pos[i * 3 + 2] = radius * Math.cos(phi);
     }
-    return [pos, initPos];
+    return [pos];
   }, [count]);
 
-  const targetColor = useMemo(() => {
-    switch (densityLevel) {
-      case "low":
-        return new THREE.Color("#10B981");
-      case "moderate":
-        return new THREE.Color(selectedSite === "vaishnodevi" ? "#EAB308" : "#C9973E");
-      case "high":
-        return new THREE.Color("#F97316");
-      case "critical":
-        return new THREE.Color("#EF4444");
-      default:
-        return new THREE.Color("#C9973E");
-    }
-  }, [densityLevel, selectedSite]);
-
-  const currentColor = useRef(new THREE.Color("#C9973E"));
-
-  useFrame((state, delta) => {
-    if (!pointsRef.current) return;
-    pointsRef.current.rotation.y += delta * 0.08;
-
-    currentColor.current.lerp(targetColor, delta * 3.0);
-    if (pointsRef.current.material instanceof THREE.PointsMaterial) {
-      pointsRef.current.material.color = currentColor.current;
-    }
-
-    const geom = pointsRef.current.geometry;
-    const posAttr = geom.attributes.position;
-    const time = state.clock.getElapsedTime();
-
-    if (time < 3) {
-      const progress = Math.min(time / 2.5, 1);
-      const ease = 1 - Math.pow(1 - progress, 3);
-
-      for (let i = 0; i < count; i++) {
-        posAttr.setXYZ(
-          i,
-          THREE.MathUtils.lerp(initialPositions[i * 3], positions[i * 3], ease),
-          THREE.MathUtils.lerp(initialPositions[i * 3 + 1], positions[i * 3 + 1], ease),
-          THREE.MathUtils.lerp(initialPositions[i * 3 + 2], positions[i * 3 + 2], ease)
-        );
-      }
-      posAttr.needsUpdate = true;
-    }
+  useFrame((_, delta) => {
+    if (pointsRef.current) pointsRef.current.rotation.y += delta * 0.08;
   });
 
   return (
@@ -320,9 +274,7 @@ function GateHotspotMarker({
       <div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className={`relative cursor-pointer transition-all duration-300 group ${
-          hovered ? "scale-110 z-20" : "scale-100"
-        }`}
+        className={`relative cursor-pointer transition-all duration-300 group ${hovered ? "scale-110 z-20" : "scale-100"}`}
       >
         <div
           className={`flex items-center gap-1.5 px-2 py-0.5 rounded-md border text-[9px] font-mono shadow-lg backdrop-blur-md ${
@@ -372,12 +324,12 @@ export default function TempleDigitalTwin({
   selectedSite = "puri",
   onSelectSite,
 }: TempleProps) {
-  const [site, setSite] = useState<"puri" | "vaishnodevi">(selectedSite);
+  const [site, setSite] = useState<SupportedSite>(selectedSite);
 
   const activeSite = onSelectSite ? selectedSite : site;
-  const isVaishno = activeSite === "vaishnodevi";
+  const currentDest = DESTINATIONS_LIST.find((d) => d.id === activeSite) || DESTINATIONS_LIST[0];
 
-  const handleToggle = (newSite: "puri" | "vaishnodevi") => {
+  const handleToggle = (newSite: SupportedSite) => {
     setSite(newSite);
     if (onSelectSite) onSelectSite(newSite);
   };
@@ -395,110 +347,44 @@ export default function TempleDigitalTwin({
       <Canvas camera={{ position: [5.0, 3.6, 6.0], fov: 42 }} gl={{ antialias: true, alpha: true }} dpr={[1, 2]}>
         <ambientLight intensity={0.7} />
         <directionalLight position={[10, 15, 8]} intensity={1.3} color="#F3E9D2" castShadow />
-        <pointLight
-          position={[0, 3.5, 0]}
-          intensity={densityLevel === "critical" ? 3.0 : 1.5}
-          color={densityLevel === "critical" ? "#EF4444" : isVaishno ? "#EAB308" : "#C9973E"}
-        />
+        <pointLight position={[0, 3.5, 0]} intensity={1.8} color="#C9973E" />
 
         <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
-          {isVaishno ? (
-            <VaishnoDeviStructure densityLevel={densityLevel} />
-          ) : (
-            <PuriGopuramStructure densityLevel={densityLevel} />
+          {activeSite === "puri" && <PuriGopuramStructure densityLevel={densityLevel} />}
+          {activeSite === "vaishnodevi" && <VaishnoDeviStructure densityLevel={densityLevel} />}
+          {!currentDest.hasTwin && <GenericShrineNode />}
+
+          <ParticleShell densityLevel={densityLevel} />
+
+          {/* Dynamic Hotspots */}
+          {activeSite === "puri" && (
+            <>
+              <GateHotspotMarker position={[0, 0.2, 2.0]} label="Singhadwara (Lion Gate)" gateCode="GATE_A" count={340} capacityPct={82} status="HIGH" />
+              <GateHotspotMarker position={[2.0, 0.2, 0]} label="Ashwadwara (Horse Gate)" gateCode="GATE_B" count={65} capacityPct={25} status="NORMAL" isRecommended />
+              <GateHotspotMarker position={[0, 0.2, -2.0]} label="Vyaghradwara (Tiger Gate)" gateCode="GATE_C" count={140} capacityPct={52} status="NORMAL" />
+              <GateHotspotMarker position={[-2.0, 0.2, 0]} label="Hastidwara (Elephant Gate)" gateCode="GATE_D" count={88} capacityPct={34} status="NORMAL" />
+            </>
           )}
 
-          <ParticleShell densityLevel={densityLevel} selectedSite={activeSite} />
+          {activeSite === "vaishnodevi" && (
+            <>
+              <GateHotspotMarker position={[0, 0.6, 1.5]} label="Bhawan Holy Sanctum Gate" gateCode="BHAWAN" count={460} capacityPct={96} status="CRITICAL" />
+              <GateHotspotMarker position={[1.5, 0.35, 0.4]} label="Ardhkuwari Cave Gate" gateCode="ARDHKUWARI" count={320} capacityPct={68} status="HIGH" />
+              <GateHotspotMarker position={[-1.5, 0.4, -0.4]} label="Bhairon Temple Ropeway" gateCode="BHAIRON" count={90} capacityPct={22} status="NORMAL" isRecommended />
+              <GateHotspotMarker position={[0, 0.1, -1.8]} label="Banganga Entry Gate" gateCode="BANGANGA" count={140} capacityPct={35} status="NORMAL" />
+            </>
+          )}
 
-          {/* Dynamic Hotspots per Site */}
-          {isVaishno ? (
-            <>
-              <GateHotspotMarker
-                position={[0, 0.6, 1.5]}
-                label="Bhawan Holy Sanctum Gate"
-                gateCode="BHAWAN"
-                count={densityLevel === "critical" ? 460 : 280}
-                capacityPct={densityLevel === "critical" ? 96 : 74}
-                status={densityLevel === "critical" ? "CRITICAL" : "HIGH"}
-              />
-              <GateHotspotMarker
-                position={[1.5, 0.35, 0.4]}
-                label="Ardhkuwari Cave Gate"
-                gateCode="ARDHKUWARI"
-                count={320}
-                capacityPct={68}
-                status="HIGH"
-              />
-              <GateHotspotMarker
-                position={[-1.5, 0.4, -0.4]}
-                label="Bhairon Temple Ropeway"
-                gateCode="BHAIRON"
-                count={90}
-                capacityPct={22}
-                status="NORMAL"
-                isRecommended={densityLevel === "high" || densityLevel === "critical"}
-              />
-              <GateHotspotMarker
-                position={[0, 0.1, -1.8]}
-                label="Banganga Entry Gate"
-                gateCode="BANGANGA"
-                count={140}
-                capacityPct={35}
-                status="NORMAL"
-              />
-            </>
-          ) : (
-            <>
-              <GateHotspotMarker
-                position={[0, 0.2, 2.0]}
-                label="Singhadwara (Lion Gate)"
-                gateCode="GATE_A"
-                count={densityLevel === "critical" ? 480 : densityLevel === "high" ? 340 : 120}
-                capacityPct={densityLevel === "critical" ? 96 : densityLevel === "high" ? 82 : 45}
-                status={densityLevel === "critical" ? "CRITICAL" : densityLevel === "high" ? "HIGH" : "NORMAL"}
-              />
-              <GateHotspotMarker
-                position={[2.0, 0.2, 0]}
-                label="Ashwadwara (Horse Gate)"
-                gateCode="GATE_B"
-                count={65}
-                capacityPct={25}
-                status="NORMAL"
-                isRecommended={densityLevel === "high" || densityLevel === "critical"}
-              />
-              <GateHotspotMarker
-                position={[0, 0.2, -2.0]}
-                label="Vyaghradwara (Tiger Gate)"
-                gateCode="GATE_C"
-                count={140}
-                capacityPct={52}
-                status="NORMAL"
-              />
-              <GateHotspotMarker
-                position={[-2.0, 0.2, 0]}
-                label="Hastidwara (Elephant Gate)"
-                gateCode="GATE_D"
-                count={88}
-                capacityPct={34}
-                status="NORMAL"
-              />
-            </>
+          {!currentDest.hasTwin && (
+            <GateHotspotMarker position={[0, 0.5, 1.5]} label={`${currentDest.name} Main Gate`} gateCode="NODE_01" count={210} capacityPct={60} status="HIGH" />
           )}
         </Float>
 
-        <OrbitControls
-          enableZoom={false}
-          enablePan={false}
-          minPolarAngle={Math.PI / 4}
-          maxPolarAngle={Math.PI / 2.1}
-          autoRotate
-          autoRotateSpeed={0.8}
-        />
+        <OrbitControls enableZoom={false} enablePan={false} minPolarAngle={Math.PI / 4} maxPolarAngle={Math.PI / 2.1} autoRotate autoRotateSpeed={0.8} />
       </Canvas>
 
-      {/* Clean Single Non-Overlapping Header Bar */}
+      {/* Clean Header Bar */}
       <div className="absolute top-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 z-20 pointer-events-auto">
-        {/* Live Load Status Pill */}
         <div className={`px-2.5 py-1 rounded-lg border text-[10px] font-mono backdrop-blur-md font-bold ${densityBadgeConfig[densityLevel].color}`}>
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-current animate-ping" />
@@ -506,46 +392,29 @@ export default function TempleDigitalTwin({
           </div>
         </div>
 
-        {/* Site Switcher Tabs */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-stone-charcoal/90 border border-sandstone/30 backdrop-blur-md text-[10px] font-mono">
-          <button
-            onClick={() => handleToggle("puri")}
-            className={`px-2.5 py-0.5 rounded-lg font-bold transition-all ${
-              !isVaishno
-                ? "bg-temple-gold text-stone-charcoal shadow-md"
-                : "text-sandstone hover:text-parchment"
-            }`}
-          >
-            Puri
-          </button>
-          <button
-            onClick={() => handleToggle("vaishnodevi")}
-            className={`px-2.5 py-0.5 rounded-lg font-bold transition-all ${
-              isVaishno
-                ? "bg-amber-500 text-slate-950 shadow-md"
-                : "text-sandstone hover:text-parchment"
-            }`}
-          >
-            Vaishno Devi
-          </button>
-        </div>
+        {/* Dropdown Selector for 6 Pilgrimage Destinations */}
+        <select
+          value={activeSite}
+          onChange={(e) => handleToggle(e.target.value as SupportedSite)}
+          className="px-2.5 py-1 rounded-xl bg-stone-charcoal/90 border border-sandstone/30 text-temple-gold text-[10px] font-mono font-bold focus:outline-none backdrop-blur-md cursor-pointer"
+        >
+          {DESTINATIONS_LIST.map((d) => (
+            <option key={d.id} value={d.id} className="bg-slate-950 text-sandstone">
+              {d.name} {d.hasTwin ? "★ 3D Twin" : "(Telemetry Active)"}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Bottom Legend */}
       <div className="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 p-2.5 rounded-xl bg-stone-charcoal/90 border border-sandstone/25 backdrop-blur-md">
         <div className="flex items-center gap-3 text-[10px] font-mono text-sandstone">
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" /> Low
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-temple-gold" /> Moderate
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-500" /> Critical
-          </span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> Low</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-temple-gold" /> Moderate</span>
+          <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Critical</span>
         </div>
         <span className="text-[9px] font-mono text-sandstone/60">
-          3D Digital Twin • Drag to Rotate
+          {currentDest.name} • {currentDest.hasTwin ? "Active 3D Twin" : "Upcoming Twin Node"}
         </span>
       </div>
     </div>

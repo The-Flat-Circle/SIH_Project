@@ -3,12 +3,21 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Users, Activity, Play, Pause, ArrowUpRight, ShieldCheck, MapPin } from "lucide-react";
-import TempleDigitalTwin from "./3d/TempleDigitalTwin";
+import TempleDigitalTwin, { SupportedSite } from "./3d/TempleDigitalTwin";
 
 interface HeroSectionProps {
   densityLevel?: "low" | "moderate" | "high" | "critical";
   setDensityLevel?: (level: "low" | "moderate" | "high" | "critical") => void;
 }
+
+const DESTINATIONS: { id: SupportedSite; name: string }[] = [
+  { id: "puri", name: "Puri Shree Mandira" },
+  { id: "vaishnodevi", name: "Mata Vaishno Devi" },
+  { id: "tirupati", name: "Tirupati Balaji" },
+  { id: "varanasi", name: "Kashi Vishwanath" },
+  { id: "kedarnath", name: "Kedarnath Dham" },
+  { id: "siddhivinayak", name: "Siddhivinayak Mumbai" },
+];
 
 export default function HeroSection({
   densityLevel: externalDensity,
@@ -16,7 +25,7 @@ export default function HeroSection({
 }: HeroSectionProps) {
   const [internalDensityLevel, setInternalDensityLevel] = useState<"low" | "moderate" | "high" | "critical">("high");
   const [isSimulating, setIsSimulating] = useState<boolean>(true);
-  const [selectedSite, setSelectedSite] = useState<"puri" | "vaishnodevi">("puri");
+  const [selectedSite, setSelectedSite] = useState<SupportedSite>("puri");
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
 
   const densityLevel = externalDensity || internalDensityLevel;
@@ -58,6 +67,8 @@ export default function HeroSection({
     return () => clearInterval(interval);
   }, [isSimulating, setDensityLevel]);
 
+  const activeDestObj = DESTINATIONS.find((d) => d.id === selectedSite) || DESTINATIONS[0];
+
   return (
     <section className="relative min-h-screen pt-28 pb-12 bg-stone-charcoal temple-grid-pattern flex flex-col justify-center overflow-hidden">
       {/* Calm Temple Photo Background Layer */}
@@ -78,32 +89,26 @@ export default function HeroSection({
           {/* Left Column: Headline & Value Proposition */}
           <div className="lg:col-span-6 space-y-5 text-left">
             
-            {/* Top Destination Selector Pill */}
-            <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-full bg-stone-charcoal/90 border border-sandstone/30 text-xs font-mono text-sandstone backdrop-blur-md">
-              <span className="flex items-center gap-1.5 text-temple-gold font-semibold">
-                <MapPin className="w-3.5 h-3.5" /> DESTINATION:
+            {/* Top Destination Selector Pills for 6 Sites */}
+            <div className="flex flex-col space-y-2">
+              <span className="text-[10px] font-mono text-sandstone/70 uppercase tracking-widest flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-temple-gold" /> PILGRIMAGE DESTINATIONS (6 SITES ACTIVE):
               </span>
-              <button
-                onClick={() => setSelectedSite("puri")}
-                className={`px-2 py-0.5 rounded transition-all ${
-                  selectedSite === "puri"
-                    ? "bg-temple-gold text-stone-charcoal font-bold"
-                    : "hover:text-parchment"
-                }`}
-              >
-                Puri Shree Mandira
-              </button>
-              <span className="text-sandstone/40">|</span>
-              <button
-                onClick={() => setSelectedSite("vaishnodevi")}
-                className={`px-2 py-0.5 rounded transition-all ${
-                  selectedSite === "vaishnodevi"
-                    ? "bg-amber-500 text-slate-950 font-bold"
-                    : "hover:text-parchment"
-                }`}
-              >
-                Mata Vaishno Devi
-              </button>
+              <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-stone-charcoal/90 border border-sandstone/30 backdrop-blur-md">
+                {DESTINATIONS.map((dest) => (
+                  <button
+                    key={dest.id}
+                    onClick={() => setSelectedSite(dest.id)}
+                    className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition-all ${
+                      selectedSite === dest.id
+                        ? "bg-temple-gold text-stone-charcoal shadow-md"
+                        : "text-sandstone hover:text-parchment hover:bg-stone-charcoal/60"
+                    }`}
+                  >
+                    {dest.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Headline Ticker */}
@@ -165,7 +170,7 @@ export default function HeroSection({
             <div className="pt-3 grid grid-cols-3 gap-3 max-w-lg border-t border-sandstone/15">
               <div>
                 <span className="text-[10px] font-mono text-sandstone/70 block uppercase">
-                  {selectedSite === "vaishnodevi" ? "BHAWAN SURGE" : "SINGHADWARA"}
+                  {activeDestObj.name.split(" ")[0]} SURGE
                 </span>
                 <span className="font-mono text-sm sm:text-base font-bold text-parchment">
                   {densityLevel === "critical" ? "94.0%" : "52.0%"}
@@ -174,7 +179,7 @@ export default function HeroSection({
               <div>
                 <span className="text-[10px] font-mono text-sandstone/70 block uppercase">ALT REROUTE</span>
                 <span className="font-mono text-sm sm:text-base font-bold text-emerald-400">
-                  {selectedSite === "vaishnodevi" ? "Bhairon Ropeway" : "Gate B (Ashwa)"}
+                  {selectedSite === "vaishnodevi" ? "Bhairon Ropeway" : selectedSite === "puri" ? "Gate B (Ashwa)" : "Gate 02 East"}
                 </span>
               </div>
               <div>
