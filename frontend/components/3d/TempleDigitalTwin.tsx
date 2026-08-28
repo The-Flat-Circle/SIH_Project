@@ -16,44 +16,34 @@ interface TempleProps {
 const DESTINATIONS_LIST: { id: SupportedSite; name: string; hasTwin: boolean }[] = [
   { id: "puri", name: "Puri Shree Mandira", hasTwin: true },
   { id: "vaishnodevi", name: "Mata Vaishno Devi", hasTwin: true },
-  { id: "tirupati", name: "Tirupati Balaji", hasTwin: false },
-  { id: "varanasi", name: "Kashi Vishwanath", hasTwin: false },
-  { id: "kedarnath", name: "Kedarnath Dham", hasTwin: false },
-  { id: "siddhivinayak", name: "Siddhivinayak Mumbai", hasTwin: false },
+  { id: "tirupati", name: "Tirupati Balaji", hasTwin: true },
+  { id: "varanasi", name: "Kashi Vishwanath", hasTwin: true },
+  { id: "kedarnath", name: "Kedarnath Dham", hasTwin: true },
+  { id: "siddhivinayak", name: "Siddhivinayak Mumbai", hasTwin: true },
 ];
 
-// Detailed Kalinga Rekha Deula Architecture for Shree Jagannath Temple Puri
+// 1. Detailed Kalinga Rekha Deula Architecture for Shree Jagannath Temple Puri
 function DetailedPuriTempleStructure({ densityLevel }: { densityLevel: string }) {
   const groupRef = useRef<THREE.Group>(null);
   const flagRef = useRef<THREE.Mesh>(null);
 
   useFrame((state, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.15;
-    }
-    if (flagRef.current) {
-      flagRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 4) * 0.08;
-    }
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.15;
+    if (flagRef.current) flagRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 4) * 0.08;
   });
 
-  const getTempleAccentColor = () => {
+  const getAccentColor = () => {
     switch (densityLevel) {
-      case "low":
-        return "#10B981";
-      case "moderate":
-        return "#C9973E";
-      case "high":
-        return "#F97316";
-      case "critical":
-        return "#B23A2E";
-      default:
-        return "#C9973E";
+      case "low": return "#10B981";
+      case "moderate": return "#C9973E";
+      case "high": return "#F97316";
+      case "critical": return "#B23A2E";
+      default: return "#C9973E";
     }
   };
 
-  const accentColor = getTempleAccentColor();
+  const accentColor = getAccentColor();
 
-  // Tiered Bhumi levels for the main Rekha Deula spire
   const spireTiers = [
     { y: 1.1, rBase: 1.35, rTop: 1.25, h: 0.28, color: "#1B2A44" },
     { y: 1.38, rBase: 1.25, rTop: 1.15, h: 0.26, color: "#223555" },
@@ -67,35 +57,25 @@ function DetailedPuriTempleStructure({ densityLevel }: { densityLevel: string })
 
   return (
     <group ref={groupRef} position={[0, -1.0, 0]}>
-      {/* 1. OUTER MEGHANADA PACHERI FORTRESS WALL (Perimeter) */}
+      {/* Outer Meghanada Pacheri Fortress Wall */}
       <mesh position={[0, 0.08, 0]}>
         <boxGeometry args={[4.4, 0.16, 4.4]} />
         <meshStandardMaterial color="#191512" roughness={0.9} />
       </mesh>
-
-      {/* Outer Wall Edges */}
       <lineSegments position={[0, 0.08, 0]}>
         <edgesGeometry args={[new THREE.BoxGeometry(4.4, 0.16, 4.4)]} />
         <lineBasicMaterial color="#C9973E" opacity={0.35} transparent />
       </lineSegments>
 
-      {/* 4 CARVED ARCHED GATEWAY PORTALS (Singhadwara, Ashwadwara, Vyaghradwara, Hastidwara) */}
-      {/* Singhadwara (Lion Gate - East/Front) */}
+      {/* Singhadwara Lion Gate Portal */}
       <mesh position={[0, 0.22, 2.18]}>
         <boxGeometry args={[0.7, 0.28, 0.12]} />
         <meshStandardMaterial color="#C9973E" metalness={0.7} roughness={0.3} />
       </mesh>
-      {/* Lion Gate Pillar Statues */}
-      <mesh position={[-0.4, 0.25, 2.2]}>
-        <boxGeometry args={[0.12, 0.32, 0.12]} />
-        <meshStandardMaterial color="#EAB308" metalness={0.8} />
-      </mesh>
-      <mesh position={[0.4, 0.25, 2.2]}>
-        <boxGeometry args={[0.12, 0.32, 0.12]} />
-        <meshStandardMaterial color="#EAB308" metalness={0.8} />
-      </mesh>
+      <mesh position={[-0.4, 0.25, 2.2]}><boxGeometry args={[0.12, 0.32, 0.12]} /><meshStandardMaterial color="#EAB308" metalness={0.8} /></mesh>
+      <mesh position={[0.4, 0.25, 2.2]}><boxGeometry args={[0.12, 0.32, 0.12]} /><meshStandardMaterial color="#EAB308" metalness={0.8} /></mesh>
 
-      {/* ARUNA STAMBHA (Sun Pillar in front of Singhadwara) */}
+      {/* Aruna Stambha Sun Pillar */}
       <mesh position={[0, 0.45, 2.6]}>
         <cylinderGeometry args={[0.04, 0.06, 0.7, 12]} />
         <meshStandardMaterial color="#C9973E" metalness={0.8} roughness={0.2} />
@@ -105,214 +85,217 @@ function DetailedPuriTempleStructure({ densityLevel }: { densityLevel: string })
         <meshStandardMaterial color="#EAB308" emissive="#C9973E" emissiveIntensity={0.6} />
       </mesh>
 
-      {/* Ashwadwara (Horse Gate - South/Right) */}
-      <mesh position={[2.18, 0.22, 0]}>
-        <boxGeometry args={[0.12, 0.28, 0.7]} />
-        <meshStandardMaterial color="#10B981" metalness={0.5} roughness={0.3} />
-      </mesh>
+      {/* Ashwadwara, Vyaghradwara, Hastidwara Portals */}
+      <mesh position={[2.18, 0.22, 0]}><boxGeometry args={[0.12, 0.28, 0.7]} /><meshStandardMaterial color="#10B981" metalness={0.5} /></mesh>
+      <mesh position={[0, 0.22, -2.18]}><boxGeometry args={[0.7, 0.28, 0.12]} /><meshStandardMaterial color="#293D61" /></mesh>
+      <mesh position={[-2.18, 0.22, 0]}><boxGeometry args={[0.12, 0.28, 0.7]} /><meshStandardMaterial color="#293D61" /></mesh>
 
-      {/* Vyaghradwara (Tiger Gate - West/Back) */}
-      <mesh position={[0, 0.22, -2.18]}>
-        <boxGeometry args={[0.7, 0.28, 0.12]} />
-        <meshStandardMaterial color="#293D61" roughness={0.4} />
-      </mesh>
-
-      {/* Hastidwara (Elephant Gate - North/Left) */}
-      <mesh position={[-2.18, 0.22, 0]}>
-        <boxGeometry args={[0.12, 0.28, 0.7]} />
-        <meshStandardMaterial color="#293D61" roughness={0.4} />
-      </mesh>
-
-      {/* 2. INNER TEMPLE PLINTH (Kurma Bedha) */}
+      {/* Inner Kurma Bedha Plinth */}
       <mesh position={[0, 0.3, 0]}>
         <boxGeometry args={[3.4, 0.28, 3.4]} />
         <meshStandardMaterial color="#211C18" roughness={0.8} />
       </mesh>
-      <lineSegments position={[0, 0.3, 0]}>
-        <edgesGeometry args={[new THREE.BoxGeometry(3.4, 0.28, 3.4)]} />
-        <lineBasicMaterial color="#C9973E" opacity={0.5} transparent />
-      </lineSegments>
 
-      {/* 3. FRONTAL HALLS (Jagamohana, Nata Mandap, Bhoga Mandap) */}
-      {/* Bhoga Mandap (Frontmost Porch) */}
-      <mesh position={[0, 0.6, 1.4]}>
-        <cylinderGeometry args={[0.45, 0.65, 0.45, 4]} />
-        <meshStandardMaterial color="#1E2F4C" roughness={0.4} />
-      </mesh>
+      {/* Frontal Halls (Jagamohana & Bhoga Mandap) */}
+      <mesh position={[0, 0.6, 1.4]}><cylinderGeometry args={[0.45, 0.65, 0.45, 4]} /><meshStandardMaterial color="#1E2F4C" /></mesh>
+      <mesh position={[0, 0.75, 0.85]}><cylinderGeometry args={[0.65, 0.85, 0.55, 4]} /><meshStandardMaterial color="#243757" /></mesh>
+      <mesh position={[0, 0.95, 0.25]}><cylinderGeometry args={[0.85, 1.15, 0.75, 4]} /><meshStandardMaterial color="#1B2A44" /></mesh>
+      <mesh position={[0, 1.38, 0.25]}><coneGeometry args={[0.75, 0.45, 4]} /><meshStandardMaterial color="#C9973E" metalness={0.5} /></mesh>
 
-      {/* Nata Mandap (Dancing Hall) */}
-      <mesh position={[0, 0.75, 0.85]}>
-        <cylinderGeometry args={[0.65, 0.85, 0.55, 4]} />
-        <meshStandardMaterial color="#243757" roughness={0.4} />
-      </mesh>
-
-      {/* Jagamohana (Assembly Hall - Pidha Deula Pyramidal Roof) */}
-      <mesh position={[0, 0.95, 0.25]}>
-        <cylinderGeometry args={[0.85, 1.15, 0.75, 4]} />
-        <meshStandardMaterial color="#1B2A44" roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 1.38, 0.25]}>
-        <coneGeometry args={[0.75, 0.45, 4]} />
-        <meshStandardMaterial color="#C9973E" metalness={0.5} roughness={0.3} />
-      </mesh>
-
-      {/* 4. MAIN REKHA DEULA SHIKHARA SPIRE (Curvilinear Sanctorum Tower) */}
+      {/* Main Spire Tower (Rekha Deula) */}
       <mesh position={[0, 0.7, -0.5]}>
         <boxGeometry args={[2.5, 0.55, 2.5]} />
         <meshStandardMaterial color="#16233B" roughness={0.4} />
       </mesh>
-
-      {/* Tiered Bhumi Ribs scaling upwards */}
       {spireTiers.map((tier, i) => (
-        <group key={i} position={[0, tier.y, -0.5]}>
-          <mesh>
-            <cylinderGeometry args={[tier.rTop, tier.rBase, tier.h, 4]} />
-            <meshStandardMaterial color={tier.color} roughness={0.35} />
-          </mesh>
-          <lineSegments>
-            <edgesGeometry args={[new THREE.CylinderGeometry(tier.rTop, tier.rBase, tier.h, 4)]} />
-            <lineBasicMaterial color="#C9973E" opacity={0.3} transparent />
-          </lineSegments>
-        </group>
+        <mesh key={i} position={[0, tier.y, -0.5]}>
+          <cylinderGeometry args={[tier.rTop, tier.rBase, tier.h, 4]} />
+          <meshStandardMaterial color={tier.color} roughness={0.35} />
+        </mesh>
       ))}
 
-      {/* 5. CROWNING AMALAKA (Fluted Circular Stone Disc) */}
-      <mesh position={[0, 2.78, -0.5]}>
-        <cylinderGeometry args={[0.42, 0.48, 0.14, 16]} />
-        <meshStandardMaterial color="#C9973E" metalness={0.7} roughness={0.2} />
-      </mesh>
+      {/* Crowning Amalaka & Golden Kalasa */}
+      <mesh position={[0, 2.78, -0.5]}><cylinderGeometry args={[0.42, 0.48, 0.14, 16]} /><meshStandardMaterial color="#C9973E" metalness={0.7} /></mesh>
+      <mesh position={[0, 2.92, -0.5]}><sphereGeometry args={[0.22, 16, 16]} /><meshStandardMaterial color="#EAB308" emissive="#C9973E" emissiveIntensity={0.6} metalness={0.9} /></mesh>
 
-      {/* 6. GOLDEN KALASA (Sacred Water Pot Pinnacle) */}
-      <mesh position={[0, 2.92, -0.5]}>
-        <sphereGeometry args={[0.22, 16, 16]} />
-        <meshStandardMaterial color="#EAB308" emissive="#C9973E" emissiveIntensity={0.6} metalness={0.9} roughness={0.1} />
-      </mesh>
-
-      {/* 7. NEELACHAKRA (Sacred Golden Blue Wheel of Lord Jagannath) */}
-      <mesh position={[0, 3.12, -0.5]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.18, 0.035, 12, 24]} />
-        <meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={0.9} metalness={0.9} />
-      </mesh>
-
-      {/* 8. PATITAPABANA BANA (Saffron Sacred Flowing Flag) */}
-      <mesh position={[0, 3.25, -0.5]}>
-        <cylinderGeometry args={[0.015, 0.02, 0.3, 8]} />
-        <meshStandardMaterial color="#EAB308" metalness={0.8} />
-      </mesh>
-      <mesh ref={flagRef} position={[0.12, 3.32, -0.5]} rotation={[0, 0, -0.2]}>
-        <coneGeometry args={[0.07, 0.32, 3]} />
-        <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.9} />
-      </mesh>
-
-      {/* Temple Pillar Lighting Accent */}
-      <pointLight position={[0, 2.8, -0.5]} intensity={1.5} color="#F59E0B" distance={4} />
+      {/* Neelachakra Blue Wheel & Saffron Flag */}
+      <mesh position={[0, 3.12, -0.5]} rotation={[Math.PI / 2, 0, 0]}><torusGeometry args={[0.18, 0.035, 12, 24]} /><meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={0.9} metalness={0.9} /></mesh>
+      <mesh ref={flagRef} position={[0.12, 3.32, -0.5]} rotation={[0, 0, -0.2]}><coneGeometry args={[0.07, 0.32, 3]} /><meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.9} /></mesh>
     </group>
   );
 }
 
-// Low-Poly Stylized Mata Vaishno Devi Shrine Architecture
-function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
+// 2. Detailed Mata Vaishno Devi Shrine Architecture (Trikuta Mountain Cave & Bhairon Ropeway)
+function DetailedVaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
   const groupRef = useRef<THREE.Group>(null);
+  const cableCarRef = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.12;
+  useFrame((state, delta) => {
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.12;
+    if (cableCarRef.current) {
+      cableCarRef.current.position.x = Math.sin(state.clock.elapsedTime * 0.8) * 1.2;
+      cableCarRef.current.position.y = 1.35 + Math.cos(state.clock.elapsedTime * 0.8) * 0.2;
     }
   });
-
-  const getAccentColor = () => {
-    switch (densityLevel) {
-      case "low":
-        return "#10B981";
-      case "moderate":
-        return "#EAB308";
-      case "high":
-        return "#F97316";
-      case "critical":
-        return "#EF4444";
-      default:
-        return "#EAB308";
-    }
-  };
-
-  const accentColor = getAccentColor();
 
   return (
     <group ref={groupRef} position={[0, -0.9, 0]}>
-      <mesh position={[0, 0.25, 0]}>
-        <cylinderGeometry args={[2.0, 2.7, 0.5, 7]} />
-        <meshStandardMaterial color="#1E293B" roughness={0.9} />
-      </mesh>
+      {/* Trikuta Mountain Base Massif */}
+      <mesh position={[0, 0.25, 0]}><cylinderGeometry args={[2.2, 2.9, 0.55, 8]} /><meshStandardMaterial color="#1E293B" roughness={0.9} /></mesh>
+      <mesh position={[0, 0.75, 0]}><cylinderGeometry args={[1.5, 2.0, 0.65, 7]} /><meshStandardMaterial color="#334155" roughness={0.8} /></mesh>
 
-      <mesh position={[0, 0.75, 0]}>
-        <cylinderGeometry args={[1.3, 1.8, 0.6, 6]} />
-        <meshStandardMaterial color="#334155" roughness={0.8} />
-      </mesh>
+      {/* Mountain Peaks (Trikuta Triple Peaks) */}
+      <mesh position={[-0.6, 1.6, -0.3]}><coneGeometry args={[0.85, 1.2, 5]} /><meshStandardMaterial color="#475569" roughness={0.7} /></mesh>
+      <mesh position={[0.5, 1.75, 0.2]}><coneGeometry args={[0.75, 1.3, 5]} /><meshStandardMaterial color="#334155" roughness={0.7} /></mesh>
+      <mesh position={[0, 2.0, -0.7]}><coneGeometry args={[0.9, 1.5, 5]} /><meshStandardMaterial color="#64748B" roughness={0.6} /></mesh>
 
-      <mesh position={[-0.35, 1.45, -0.25]}>
-        <coneGeometry args={[0.8, 1.0, 5]} />
-        <meshStandardMaterial color="#475569" roughness={0.7} />
-      </mesh>
-      <mesh position={[0.4, 1.55, 0.15]}>
-        <coneGeometry args={[0.7, 1.1, 5]} />
-        <meshStandardMaterial color="#334155" roughness={0.7} />
-      </mesh>
+      {/* Holy Bhawan White Marble Sanctum */}
+      <mesh position={[0, 0.85, 1.0]}><boxGeometry args={[1.6, 0.55, 0.8]} /><meshStandardMaterial color="#F8FAFC" roughness={0.2} /></mesh>
+      <mesh position={[0, 0.85, 1.36]} rotation={[Math.PI / 2, 0, 0]}><cylinderGeometry args={[0.28, 0.28, 0.1, 16]} /><meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.6} metalness={0.8} /></mesh>
 
-      <mesh position={[0, 0.8, 1.0]}>
-        <boxGeometry args={[1.5, 0.45, 0.7]} />
-        <meshStandardMaterial color="#F8FAFC" roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.8, 1.33]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.25, 0.25, 0.08, 16]} />
-        <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.5} metalness={0.7} />
-      </mesh>
+      {/* 3 Glowing Sacred Pindis (Maha Kali, Maha Lakshmi, Maha Saraswati) */}
+      <mesh position={[-0.14, 0.85, 1.25]}><sphereGeometry args={[0.07, 12, 12]} /><meshStandardMaterial color="#EF4444" emissive="#EF4444" emissiveIntensity={1.4} /></mesh>
+      <mesh position={[0, 0.87, 1.25]}><sphereGeometry args={[0.08, 12, 12]} /><meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={1.4} /></mesh>
+      <mesh position={[0.14, 0.85, 1.25]}><sphereGeometry args={[0.07, 12, 12]} /><meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={1.4} /></mesh>
 
-      <mesh position={[-0.12, 0.8, 1.22]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#EF4444" emissive="#EF4444" emissiveIntensity={1.2} />
-      </mesh>
-      <mesh position={[0, 0.82, 1.22]}>
-        <sphereGeometry args={[0.07, 12, 12]} />
-        <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={1.2} />
-      </mesh>
-      <mesh position={[0.12, 0.8, 1.22]}>
-        <sphereGeometry args={[0.06, 12, 12]} />
-        <meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={1.2} />
-      </mesh>
+      {/* Golden Dome & Kalasa */}
+      <mesh position={[0, 1.22, 1.0]}><sphereGeometry args={[0.28, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#EAB308" metalness={0.9} roughness={0.1} /></mesh>
+      <mesh position={[0, 1.45, 1.0]}><coneGeometry args={[0.08, 0.28, 8]} /><meshStandardMaterial color="#EAB308" emissive="#EAB308" emissiveIntensity={0.8} /></mesh>
 
-      <mesh position={[0, 1.15, 1.0]}>
-        <sphereGeometry args={[0.25, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#EAB308" metalness={0.8} roughness={0.2} />
-      </mesh>
-      <mesh position={[0, 1.35, 1.0]}>
-        <coneGeometry args={[0.07, 0.25, 8]} />
-        <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={0.8} />
-      </mesh>
+      {/* Bhairon Temple Cable Car Ropeway Line */}
+      <lineSegments>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[new Float32Array([-1.3, 1.6, 0.2, 1.3, 1.1, 0.2]), 3]}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial color="#EAB308" opacity={0.7} transparent />
+      </lineSegments>
+      <group ref={cableCarRef}>
+        <mesh position={[0, -0.08, 0.2]}><boxGeometry args={[0.18, 0.14, 0.14]} /><meshStandardMaterial color="#EF4444" emissive="#EF4444" emissiveIntensity={0.4} /></mesh>
+      </group>
     </group>
   );
 }
 
-// Generic Node Geometry Frame for Upcoming Destination Twins
-function GenericShrineNode() {
+// 3. Detailed Tirupati Balaji Temple Architecture (Dravidian Golden Ananda Nilayam Vimanam)
+function DetailedTirupatiStructure() {
   const groupRef = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.1;
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.14;
   });
 
   return (
-    <group ref={groupRef} position={[0, -0.8, 0]}>
-      <mesh position={[0, 0.2, 0]}>
-        <boxGeometry args={[3.0, 0.2, 3.0]} />
-        <meshStandardMaterial color="#1E293B" roughness={0.8} />
-      </mesh>
-      <mesh position={[0, 0.9, 0]}>
-        <cylinderGeometry args={[1.0, 1.4, 1.2, 6]} />
-        <meshStandardMaterial color="#334155" wireframe />
-      </mesh>
-      <mesh position={[0, 1.8, 0]}>
-        <coneGeometry args={[0.7, 0.9, 6]} />
-        <meshStandardMaterial color="#C9973E" wireframe />
-      </mesh>
+    <group ref={groupRef} position={[0, -0.9, 0]}>
+      {/* Swamy Pushkarini Tank Base Plinth */}
+      <mesh position={[0, 0.12, 0]}><boxGeometry args={[3.8, 0.18, 3.8]} /><meshStandardMaterial color="#1E293B" roughness={0.8} /></mesh>
+      <mesh position={[0, 0.35, 0]}><boxGeometry args={[3.0, 0.28, 3.0]} /><meshStandardMaterial color="#0F172A" roughness={0.6} /></mesh>
+
+      {/* Multi-tiered Dravidian Ananda Nilayam Spire (Plated in 24k Gold) */}
+      <mesh position={[0, 0.75, -0.2]}><boxGeometry args={[1.8, 0.5, 1.8]} /><meshStandardMaterial color="#EAB308" metalness={0.9} roughness={0.15} /></mesh>
+      <mesh position={[0, 1.15, -0.2]}><boxGeometry args={[1.4, 0.42, 1.4]} /><meshStandardMaterial color="#CA8A04" metalness={0.9} roughness={0.15} /></mesh>
+      <mesh position={[0, 1.5, -0.2]}><boxGeometry args={[1.0, 0.35, 1.0]} /><meshStandardMaterial color="#EAB308" metalness={0.9} roughness={0.15} /></mesh>
+
+      {/* Golden Kalasa Kalasam Pinnacle */}
+      <mesh position={[0, 1.82, -0.2]}><sphereGeometry args={[0.25, 16, 16]} /><meshStandardMaterial color="#EAB308" emissive="#EAB308" emissiveIntensity={0.8} metalness={1.0} /></mesh>
+      <mesh position={[0, 2.05, -0.2]}><coneGeometry args={[0.08, 0.3, 8]} /><meshStandardMaterial color="#EAB308" emissive="#F59E0B" emissiveIntensity={1.0} /></mesh>
+
+      {/* Dravidian Outer Gopuram Tower (Front Gate) */}
+      <mesh position={[0, 0.9, 1.3]}><cylinderGeometry args={[0.5, 0.9, 1.0, 4]} /><meshStandardMaterial color="#1E293B" roughness={0.5} /></mesh>
+      <mesh position={[0, 1.55, 1.3]}><cylinderGeometry args={[0.3, 0.5, 0.6, 4]} /><meshStandardMaterial color="#CA8A04" metalness={0.8} /></mesh>
+
+      <pointLight position={[0, 2.0, -0.2]} intensity={2.0} color="#EAB308" distance={5} />
+    </group>
+  );
+}
+
+// 4. Detailed Kashi Vishwanath Architecture (Varanasi Twin Golden Spires & Ganges Ghat)
+function DetailedKashiStructure() {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.13;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.9, 0]}>
+      {/* Ganges River & Stone Ghat Steps Plinth */}
+      <mesh position={[0, 0.1, 0]}><boxGeometry args={[3.8, 0.15, 3.8]} /><meshStandardMaterial color="#0284C7" roughness={0.2} /></mesh>
+      <mesh position={[0, 0.25, 0.3]}><boxGeometry args={[3.2, 0.18, 2.8]} /><meshStandardMaterial color="#334155" roughness={0.8} /></mesh>
+
+      {/* Temple Base */}
+      <mesh position={[0, 0.55, -0.2]}><boxGeometry args={[2.2, 0.45, 2.2]} /><meshStandardMaterial color="#1E293B" roughness={0.6} /></mesh>
+
+      {/* Twin Golden Spires (Gold Chhatra) */}
+      <mesh position={[-0.45, 1.2, -0.2]}><coneGeometry args={[0.45, 1.1, 8]} /><meshStandardMaterial color="#EAB308" metalness={0.9} roughness={0.1} emissive="#EAB308" emissiveIntensity={0.3} /></mesh>
+      <mesh position={[0.45, 1.1, -0.2]}><coneGeometry args={[0.38, 0.9, 8]} /><meshStandardMaterial color="#CA8A04" metalness={0.9} roughness={0.1} /></mesh>
+
+      {/* Golden Dome (Silver & Gold Plated) */}
+      <mesh position={[0, 1.0, 0.3]}><sphereGeometry args={[0.4, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#EAB308" metalness={0.95} roughness={0.1} /></mesh>
+      <mesh position={[0, 1.45, 0.3]}><coneGeometry args={[0.08, 0.3, 8]} /><meshStandardMaterial color="#EAB308" emissive="#EAB308" emissiveIntensity={0.8} /></mesh>
+
+      {/* Sacred Diyas on Ghat Steps */}
+      <mesh position={[-0.8, 0.38, 1.3]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={1.5} /></mesh>
+      <mesh position={[0, 0.38, 1.4]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={1.5} /></mesh>
+      <mesh position={[0.8, 0.38, 1.3]}><sphereGeometry args={[0.06, 8, 8]} /><meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={1.5} /></mesh>
+    </group>
+  );
+}
+
+// 5. Detailed Kedarnath Dham Architecture (Himalayan Stone Sanctum & Snow Massif)
+function DetailedKedarnathStructure() {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.12;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.9, 0]}>
+      {/* Himalayan Rock Massif Plinth */}
+      <mesh position={[0, 0.15, 0]}><boxGeometry args={[4.0, 0.25, 4.0]} /><meshStandardMaterial color="#0F172A" roughness={0.9} /></mesh>
+
+      {/* Snow Peaks Background */}
+      <mesh position={[-0.8, 1.8, -1.2]}><coneGeometry args={[1.0, 1.8, 4]} /><meshStandardMaterial color="#F8FAFC" roughness={0.4} /></mesh>
+      <mesh position={[0.7, 2.0, -1.3]}><coneGeometry args={[1.2, 2.1, 4]} /><meshStandardMaterial color="#E2E8F0" roughness={0.4} /></mesh>
+
+      {/* Heavy Gray Stone Temple Sanctum (built for avalanche protection) */}
+      <mesh position={[0, 0.65, 0.2]}><boxGeometry args={[1.8, 0.75, 2.2]} /><meshStandardMaterial color="#334155" roughness={0.8} /></mesh>
+      <mesh position={[0, 1.3, -0.2]}><coneGeometry args={[0.8, 0.9, 4]} /><meshStandardMaterial color="#1E293B" roughness={0.7} /></mesh>
+      <mesh position={[0, 1.8, -0.2]}><coneGeometry args={[0.12, 0.35, 8]} /><meshStandardMaterial color="#EAB308" emissive="#EAB308" emissiveIntensity={0.8} /></mesh>
+
+      {/* Frontal Porch & Nandi Bull Statue */}
+      <mesh position={[0, 0.6, 1.4]}><cylinderGeometry args={[0.5, 0.7, 0.5, 4]} /><meshStandardMaterial color="#475569" /></mesh>
+      <mesh position={[0, 0.42, 1.9]}><boxGeometry args={[0.22, 0.18, 0.3]} /><meshStandardMaterial color="#1E293B" metalness={0.5} /></mesh>
+    </group>
+  );
+}
+
+// 6. Detailed Siddhivinayak Mumbai Architecture (Golden Dome & Kalasa Multi-Spires)
+function DetailedSiddhivinayakStructure() {
+  const groupRef = useRef<THREE.Group>(null);
+  useFrame((_, delta) => {
+    if (groupRef.current) groupRef.current.rotation.y += delta * 0.14;
+  });
+
+  return (
+    <group ref={groupRef} position={[0, -0.9, 0]}>
+      {/* Plinth */}
+      <mesh position={[0, 0.15, 0]}><boxGeometry args={[3.6, 0.2, 3.6]} /><meshStandardMaterial color="#1E293B" roughness={0.8} /></mesh>
+
+      {/* Main Temple Facade */}
+      <mesh position={[0, 0.65, 0]}><boxGeometry args={[2.4, 0.8, 2.4]} /><meshStandardMaterial color="#F8FAFC" roughness={0.3} /></mesh>
+
+      {/* Central 12-foot Golden Main Dome */}
+      <mesh position={[0, 1.3, 0]}><sphereGeometry args={[0.65, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#EAB308" metalness={0.9} roughness={0.1} emissive="#EAB308" emissiveIntensity={0.4} /></mesh>
+      <mesh position={[0, 2.0, 0]}><coneGeometry args={[0.12, 0.4, 8]} /><meshStandardMaterial color="#EAB308" emissive="#EAB308" emissiveIntensity={0.9} /></mesh>
+
+      {/* 6 Surrounding Smaller Golden Kalasa Domes */}
+      <mesh position={[-0.8, 1.1, -0.8]}><sphereGeometry args={[0.22, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#CA8A04" metalness={0.8} /></mesh>
+      <mesh position={[0.8, 1.1, -0.8]}><sphereGeometry args={[0.22, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#CA8A04" metalness={0.8} /></mesh>
+      <mesh position={[-0.8, 1.1, 0.8]}><sphereGeometry args={[0.22, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#CA8A04" metalness={0.8} /></mesh>
+      <mesh position={[0.8, 1.1, 0.8]}><sphereGeometry args={[0.22, 12, 12, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#CA8A04" metalness={0.8} /></mesh>
+
+      <pointLight position={[0, 2.1, 0]} intensity={1.8} color="#EAB308" distance={4} />
     </group>
   );
 }
@@ -459,8 +442,11 @@ export default function TempleDigitalTwin({
 
         <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.3}>
           {activeSite === "puri" && <DetailedPuriTempleStructure densityLevel={densityLevel} />}
-          {activeSite === "vaishnodevi" && <VaishnoDeviStructure densityLevel={densityLevel} />}
-          {!currentDest.hasTwin && <GenericShrineNode />}
+          {activeSite === "vaishnodevi" && <DetailedVaishnoDeviStructure densityLevel={densityLevel} />}
+          {activeSite === "tirupati" && <DetailedTirupatiStructure />}
+          {activeSite === "varanasi" && <DetailedKashiStructure />}
+          {activeSite === "kedarnath" && <DetailedKedarnathStructure />}
+          {activeSite === "siddhivinayak" && <DetailedSiddhivinayakStructure />}
 
           <ParticleShell densityLevel={densityLevel} />
 
@@ -483,8 +469,32 @@ export default function TempleDigitalTwin({
             </>
           )}
 
-          {!currentDest.hasTwin && (
-            <GateHotspotMarker position={[0, 0.5, 1.5]} label={`${currentDest.name} Main Gate`} gateCode="NODE_01" count={210} capacityPct={60} status="HIGH" />
+          {activeSite === "tirupati" && (
+            <>
+              <GateHotspotMarker position={[0, 0.4, 1.6]} label="Vaikuntam Queue Complex" gateCode="QUE_01" count={520} capacityPct={92} status="CRITICAL" />
+              <GateHotspotMarker position={[1.6, 0.4, -0.2]} label="Sampangi Pradakshinam" gateCode="PRADAKSHIN" count={180} capacityPct={38} status="NORMAL" isRecommended />
+            </>
+          )}
+
+          {activeSite === "varanasi" && (
+            <>
+              <GateHotspotMarker position={[0, 0.3, 1.6]} label="Dashashwamedh Ghat Entrance" gateCode="GHAT_GATE" count={410} capacityPct={85} status="HIGH" />
+              <GateHotspotMarker position={[-1.4, 0.4, -0.2]} label="Ganga Corridor Gate 02" gateCode="GATE_02" count={95} capacityPct={24} status="NORMAL" isRecommended />
+            </>
+          )}
+
+          {activeSite === "kedarnath" && (
+            <>
+              <GateHotspotMarker position={[0, 0.4, 1.8]} label="Main Sanctum Mandap" gateCode="SANCTUM" count={380} capacityPct={88} status="HIGH" />
+              <GateHotspotMarker position={[1.5, 0.3, 0.2]} label="Bhairavnath Trek Path" gateCode="TREK_ALT" count={60} capacityPct={15} status="NORMAL" isRecommended />
+            </>
+          )}
+
+          {activeSite === "siddhivinayak" && (
+            <>
+              <GateHotspotMarker position={[0, 0.4, 1.6]} label="Kakad Aarti Entry Gate" gateCode="GATE_AARTI" count={490} capacityPct={94} status="CRITICAL" />
+              <GateHotspotMarker position={[-1.5, 0.3, 0]} label="Prabhadevi Bypass Corridor" gateCode="BYPASS" count={85} capacityPct={20} status="NORMAL" isRecommended />
+            </>
           )}
         </Float>
 
@@ -508,7 +518,7 @@ export default function TempleDigitalTwin({
         >
           {DESTINATIONS_LIST.map((d) => (
             <option key={d.id} value={d.id} className="bg-slate-950 text-sandstone">
-              {d.name} {d.hasTwin ? "★ 3D Twin" : "(Telemetry Active)"}
+              {d.name} ★ 3D Twin Active
             </option>
           ))}
         </select>
@@ -522,7 +532,7 @@ export default function TempleDigitalTwin({
           <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> Critical</span>
         </div>
         <span className="text-[9px] font-mono text-sandstone/60">
-          {currentDest.name} • {currentDest.hasTwin ? "Active 3D Twin" : "Upcoming Twin Node"}
+          {currentDest.name} • Active 3D Twin
         </span>
       </div>
     </div>
