@@ -6,7 +6,7 @@ import { Shield, AlertTriangle, Cpu, ArrowLeft, Lock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, signInWithGoogle } from "@/lib/supabaseClient";
 
 // Secure Internal Whitelist of Authorized Admin Emails
 const AUTHORIZED_ADMIN_EMAILS = [
@@ -83,12 +83,7 @@ export function LoginGate({
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: typeof window !== "undefined" ? `${window.location.origin}/login` : undefined,
-        },
-      });
+      const { error } = await signInWithGoogle();
 
       if (error) {
         setAuthError(`Sign-in error: ${error.message}`);
