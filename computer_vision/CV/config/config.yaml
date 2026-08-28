@@ -1,0 +1,93 @@
+# Adaptive Crowd Management & Visitor Flow Optimization Configuration
+
+project:
+  name: "SIH-Crowd-Management"
+  version: "0.1.0"
+
+input:
+  source: "data/videos/sample.mp4"
+  resize_width: 1280
+  resize_height: 720
+
+geometry:
+  reference_width: 768
+  reference_height: 432
+
+detector:
+  model_path: "yolov8n.pt"  # Default lightweight YOLO model
+  confidence_threshold: 0.35
+  iou_threshold: 0.45
+  target_classes: [0]  # Class 0 corresponds to 'person' in COCO dataset
+  device: "cpu"  # Compute device: 'cpu', 'cuda', or 'auto'
+
+tracker:
+  type: "bytetrack"
+  tracker_config: "bytetrack.yaml"
+  track_high_thresh: 0.5
+  track_low_thresh: 0.1
+  new_track_thresh: 0.6
+  track_buffer: 30
+  match_thresh: 0.8
+
+density:
+  grid_rows: 3
+  grid_cols: 3
+  high_density_threshold: 15
+  critical_density_threshold: 30
+
+virtual_gates:
+  - id: "gate_1"
+    line: [[100, 400], [1100, 400]] # [[x1, y1], [x2, y2]]
+    direction: "bidirectional"
+
+counting_line:
+  orientation: "horizontal"
+  position: 240
+  margin: 15
+  in_direction: "above_to_below"
+  camera_id: "camera_01"
+
+zones:
+  - id: "zone_1"
+    name: "Main Entrance"
+    polygon: [[30, 40], [738, 40], [738, 170], [30, 170]]
+    area_m2: 500.0
+    thresholds:
+      low: 0.005
+      medium: 0.010
+      high: 0.020
+      critical: 0.030
+
+  - id: "zone_2"
+    name: "Sanctum Queue"
+    polygon: [[30, 190], [370, 190], [370, 400], [30, 400]]
+    area_m2: 250.0
+    thresholds:
+      low: 0.005
+      medium: 0.010
+      high: 0.020
+      critical: 0.030
+
+  - id: "zone_3"
+    name: "Exit Plaza"
+    polygon: [[390, 190], [738, 190], [738, 400], [390, 400]]
+    area_m2: 300.0
+    thresholds:
+      low: 0.005
+      medium: 0.010
+      high: 0.020
+      critical: 0.030
+
+flow:
+  movement_threshold_pixels: 5.0
+  stationary_speed_threshold: 5.0
+  max_history_len: 30
+  max_stale_frames: 60
+  camera_id: "camera_01"
+
+output:
+  save_video: true
+  output_path: "outputs/processed_output.mp4"
+  save_metrics_csv: true
+  csv_path: "outputs/crowd_metrics.csv"
+

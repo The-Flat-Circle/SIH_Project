@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Shield, Camera, Cpu, Activity, AlertTriangle, GitFork, RefreshCw, LogOut, CheckCircle, Radio, Database, Lock } from "lucide-react";
+import { Shield, Camera, Cpu, Activity, AlertTriangle, GitFork, RefreshCw, LogOut, CheckCircle, Radio, Database, Lock, Play, Pause } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "@/lib/supabaseClient";
 
@@ -10,11 +10,13 @@ export default function AdminControlPanel() {
   const router = useRouter();
   const [adminEmail, setAdminEmail] = useState("2405872@kiit.ac.in");
   const [overrideActive, setOverrideActive] = useState(false);
+  const [isPlayingStream, setIsPlayingStream] = useState(true);
   const [logs, setLogs] = useState<string[]>([
     "[SYSTEM_INIT] FastAPI Gateway connected to Supabase PostgreSQL at 20:23:00Z",
-    "[CV_INGEST] CAM_01_SINGHADWARA: 180 PPL detected (YOLOv8 + ByteTrack confidence: 0.94)",
-    "[ANALYTICS] Prophet 15-min forecast computed: Gate_A surge probability 84%",
-    "[REROUTING] Auto-recommendation generated: Redirect 60% inflow from Gate_A to Gate_B",
+    "[YOLOV8_INGEST] CAM_01_SINGHADWARA: 180 PPL detected (ByteTrack tracker confidence: 0.94)",
+    "[FLOW_METRICS] Velocity: 0.12 m/s | Moving: 138 PPL | Stationary: 42 PPL",
+    "[PROPHET_SURGE] 15-min forecast computed: Gate_A surge probability 84%",
+    "[LIVE_REROUTE] Auto-recommendation active: Redirect 60% inflow from Gate_A to Gate_B",
   ]);
 
   useEffect(() => {
@@ -102,69 +104,100 @@ export default function AdminControlPanel() {
           </div>
           <div className="space-y-1">
             <span className="text-slate-500 text-[10px] uppercase">GATE_A UTILIZATION</span>
-            <div className="text-xl font-bold text-amber-400">94.0% (Critical)</div>
+            <div className="text-xl font-bold text-amber-400">94.4% (Critical)</div>
           </div>
           <div className="space-y-1">
             <span className="text-slate-500 text-[10px] uppercase">15M PROPHET SURGE</span>
             <div className="text-xl font-bold text-orange-400">+211 PPL (84%)</div>
           </div>
           <div className="space-y-1">
-            <span className="text-slate-500 text-[10px] uppercase">ACTIVE DISPATCH ALERTS</span>
-            <div className="text-xl font-bold text-red-400">2 High Severity</div>
+            <span className="text-slate-500 text-[10px] uppercase">ACTIVE REROUTE TARGET</span>
+            <div className="text-xl font-bold text-emerald-400">{overrideActive ? "Gate E (Hastidwara)" : "Gate B (Ashwadwara)"}</div>
           </div>
         </div>
 
-        {/* Section 1: CCTV Camera Streams Grid */}
+        {/* Section 1: Live CCTV Camera Streams Grid with Real Video Feeds */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs">
             <span className="text-amber-400 font-bold flex items-center gap-2">
-              <Camera className="w-4 h-4" /> LIVE CCTV CAMERA NODE STREAMS (RTSP / YOLOv8)
+              <Camera className="w-4 h-4" /> LIVE CCTV CAMERA NODE STREAMS (YOLOv8 + ByteTrack)
             </span>
-            <span className="text-slate-400 text-[10px]">CAM_NODES: 4 ACTIVE</span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsPlayingStream(!isPlayingStream)}
+                className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold flex items-center gap-1.5"
+              >
+                {isPlayingStream ? <Pause className="w-3 h-3 text-amber-400" /> : <Play className="w-3 h-3 text-emerald-400" />}
+                <span>{isPlayingStream ? "Pause Video Feeds" : "Play Video Feeds"}</span>
+              </button>
+              <span className="text-slate-400 text-[10px]">CAM_NODES: 4 ACTIVE</span>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Cam 1 */}
+            {/* Cam 1: Real Processed Video Feed */}
             <div className="p-3 rounded-xl bg-slate-900 border border-red-500/40 space-y-2 relative overflow-hidden">
               <div className="flex justify-between items-center text-[10px]">
                 <span className="text-slate-300 font-bold">CAM_01_SINGHADWARA</span>
                 <span className="px-1.5 py-0.5 rounded bg-red-950 text-red-300 font-bold">94% SURGE</span>
               </div>
-              <div className="h-28 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1 relative">
-                <Camera className="w-6 h-6 text-red-500/60 animate-pulse" />
-                <span>RTSP Stream: 30 FPS</span>
-                <span className="text-slate-400 font-bold text-xs">180 Detected Persons</span>
+              
+              <div className="h-32 rounded bg-slate-950 border border-slate-800 relative overflow-hidden group">
+                <video
+                  src="/real_crowd_output.mp4"
+                  autoPlay={isPlayingStream}
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover filter brightness-[0.9]"
+                />
+                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-[9px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  YOLOv8 LIVE
+                </div>
               </div>
+
               <div className="flex justify-between text-[9px] text-slate-400">
-                <span>Inflow: 42/min</span>
-                <span>Outflow: 15/min</span>
+                <span>Moving: 138 PPL</span>
+                <span>Speed: 0.12 m/s</span>
               </div>
             </div>
 
-            {/* Cam 2 */}
+            {/* Cam 2: Night Scaled Output Video Feed */}
             <div className="p-3 rounded-xl bg-slate-900 border border-emerald-500/40 space-y-2 relative overflow-hidden">
               <div className="flex justify-between items-center text-[10px]">
                 <span className="text-slate-300 font-bold">CAM_02_ASHWADWARA</span>
-                <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold">25% LOW</span>
+                <span className="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold">21% LOW</span>
               </div>
-              <div className="h-28 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1">
-                <Camera className="w-6 h-6 text-emerald-500/60" />
-                <span>RTSP Stream: 30 FPS</span>
-                <span className="text-slate-400 font-bold text-xs">65 Detected Persons</span>
+              
+              <div className="h-32 rounded bg-slate-950 border border-slate-800 relative overflow-hidden group">
+                <video
+                  src="/crowd_night_scaled_output.mp4"
+                  autoPlay={isPlayingStream}
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover filter brightness-[0.9]"
+                />
+                <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/70 text-[9px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                  ByteTrack LIVE
+                </div>
               </div>
+
               <div className="flex justify-between text-[9px] text-slate-400">
                 <span>Inflow: 12/min</span>
                 <span>Outflow: 18/min</span>
               </div>
             </div>
 
-            {/* Cam 3 */}
+            {/* Cam 3: Queue Corridor Stream */}
             <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 relative overflow-hidden">
               <div className="flex justify-between items-center text-[10px]">
                 <span className="text-slate-300 font-bold">CAM_03_QUEUE_CORRIDOR</span>
                 <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold">52% MODERATE</span>
               </div>
-              <div className="h-28 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1">
+              <div className="h-32 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1">
                 <Camera className="w-6 h-6 text-amber-500/60" />
                 <span>ByteTrack Velocity: 0.12m/s</span>
                 <span className="text-slate-400 font-bold text-xs">240 Tracked IDs</span>
@@ -175,13 +208,13 @@ export default function AdminControlPanel() {
               </div>
             </div>
 
-            {/* Cam 4 */}
+            {/* Cam 4: Inner Sanctum Stream */}
             <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 space-y-2 relative overflow-hidden">
               <div className="flex justify-between items-center text-[10px]">
                 <span className="text-slate-300 font-bold">CAM_04_INNER_SANCTUM</span>
                 <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-bold">34% NORMAL</span>
               </div>
-              <div className="h-28 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1">
+              <div className="h-32 rounded bg-slate-950 border border-slate-800 flex flex-col items-center justify-center text-slate-600 text-[10px] space-y-1">
                 <Camera className="w-6 h-6 text-slate-500" />
                 <span>Interior Density Map</span>
                 <span className="text-slate-400 font-bold text-xs">95 Present</span>
@@ -212,7 +245,9 @@ export default function AdminControlPanel() {
             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-400">AUTOMATED RECOMMENDATION:</span>
-                <span className="text-amber-300 font-bold">Redirect Gate A to Gate B</span>
+                <span className="text-amber-300 font-bold">
+                  {overrideActive ? "Redirect Gate A to Gate E (MANUAL OVERRIDE)" : "Redirect Gate A to Gate B (Ashwadwara)"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">PROPOSED RETURN SLOT:</span>
@@ -223,7 +258,7 @@ export default function AdminControlPanel() {
             <div className="flex gap-3 pt-1">
               <button
                 onClick={handleManualOverride}
-                className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all uppercase tracking-wider ${
+                className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all uppercase tracking-wider cursor-pointer ${
                   overrideActive
                     ? "bg-red-600 hover:bg-red-500 text-white shadow-lg"
                     : "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-lg"
