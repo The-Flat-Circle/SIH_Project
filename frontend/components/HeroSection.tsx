@@ -58,15 +58,8 @@ export default function HeroSection({
     return () => clearInterval(interval);
   }, [isSimulating, setDensityLevel]);
 
-  const densityBadgeConfig = {
-    low: { label: "LOW LOAD (15-25%)", color: "bg-emerald-950/90 text-emerald-400 border-emerald-500/50" },
-    moderate: { label: "MODERATE (50-65%)", color: "bg-temple-gold/20 text-temple-gold border-temple-gold/50" },
-    high: { label: "HIGH SURGE (80-88%)", color: "bg-amber-950/90 text-amber-400 border-amber-500/50" },
-    critical: { label: "CRITICAL OVERLOAD (94%+)", color: "bg-red-950/90 text-red-400 border-red-500 animate-pulse" },
-  };
-
   return (
-    <section className="relative min-h-screen pt-28 pb-16 bg-stone-charcoal temple-grid-pattern flex flex-col justify-center overflow-hidden">
+    <section className="relative min-h-screen pt-28 pb-12 bg-stone-charcoal temple-grid-pattern flex flex-col justify-center overflow-hidden">
       {/* Calm Temple Photo Background Layer */}
       <div className="absolute inset-0 z-0">
         <img
@@ -80,10 +73,10 @@ export default function HeroSection({
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
           {/* Left Column: Headline & Value Proposition */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <div className="lg:col-span-6 space-y-5 text-left">
             
             {/* Top Destination Selector Pill */}
             <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1.5 rounded-full bg-stone-charcoal/90 border border-sandstone/30 text-xs font-mono text-sandstone backdrop-blur-md">
@@ -114,8 +107,8 @@ export default function HeroSection({
             </div>
 
             {/* Headline Ticker */}
-            <div className="min-h-[140px] sm:min-h-[160px] flex flex-col justify-start">
-              <div className="h-[48px] sm:h-[56px] overflow-hidden relative">
+            <div className="min-h-[130px] sm:min-h-[150px] flex flex-col justify-start">
+              <div className="h-[46px] sm:h-[54px] overflow-hidden relative">
                 <AnimatePresence mode="wait">
                   <motion.h1
                     key={currentPhraseIndex}
@@ -136,15 +129,15 @@ export default function HeroSection({
             </div>
 
             {/* Subheading */}
-            <p className="text-sandstone text-base sm:text-lg leading-relaxed max-w-xl font-normal">
+            <p className="text-sandstone text-sm sm:text-base leading-relaxed max-w-xl font-normal">
               An intelligent 3D Digital Twin and predictive AI system for high-density pilgrimage destinations. Forecast 15-minute crowd surges and balance internal gate loads.
             </p>
 
             {/* Action Buttons & Simulator Toggle */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
+            <div className="pt-1 flex flex-wrap items-center gap-3">
               <a
                 href="#dual-solution"
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-temple-gold text-stone-charcoal font-semibold text-sm hover:bg-temple-light transition-all shadow-temple-glow group"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-temple-gold text-stone-charcoal font-semibold text-sm hover:bg-temple-light transition-all shadow-temple-glow group"
               >
                 <span>Explore Live Rerouting</span>
                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -152,7 +145,7 @@ export default function HeroSection({
 
               <button
                 onClick={() => setIsSimulating(!isSimulating)}
-                className="inline-flex items-center gap-2 px-4 py-3.5 rounded-xl bg-dusk-card/80 border border-sandstone/30 text-sandstone text-xs font-mono hover:text-parchment hover:border-sandstone/60 transition-all backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-dusk-card/80 border border-sandstone/30 text-sandstone text-xs font-mono hover:text-parchment hover:border-sandstone/60 transition-all backdrop-blur-sm"
               >
                 {isSimulating ? (
                   <>
@@ -169,7 +162,7 @@ export default function HeroSection({
             </div>
 
             {/* Real-time Telemetry Bar */}
-            <div className="pt-4 grid grid-cols-3 gap-3 max-w-lg border-t border-sandstone/15">
+            <div className="pt-3 grid grid-cols-3 gap-3 max-w-lg border-t border-sandstone/15">
               <div>
                 <span className="text-[10px] font-mono text-sandstone/70 block uppercase">
                   {selectedSite === "vaishnodevi" ? "BHAWAN SURGE" : "SINGHADWARA"}
@@ -196,22 +189,7 @@ export default function HeroSection({
 
           {/* Right Column: 3D Digital Twin Container */}
           <div className="lg:col-span-6 relative">
-            
-            {/* Live Indicator Pill */}
-            <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
-              <div
-                className={`px-3 py-1.5 rounded-lg border text-xs font-mono backdrop-blur-md transition-all ${
-                  densityBadgeConfig[densityLevel].color
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-current animate-ping" />
-                  <span className="font-bold">{densityBadgeConfig[densityLevel].label}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* R3F 3D Model Component */}
+            {/* R3F 3D Model Component with Compact Height */}
             <TempleDigitalTwin
               densityLevel={densityLevel}
               selectedSite={selectedSite}
@@ -219,9 +197,9 @@ export default function HeroSection({
             />
 
             {/* Caption Note */}
-            <div className="mt-3 text-right">
-              <span className="text-[11px] font-mono text-sandstone/60">
-                Interactive 3D Digital Twin • Drag to rotate camera
+            <div className="mt-2 text-right">
+              <span className="text-[10px] font-mono text-sandstone/60">
+                Interactive 3D Digital Twin • Drag to rotate
               </span>
             </div>
 
