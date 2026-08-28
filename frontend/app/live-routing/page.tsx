@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { ArrowLeft, Upload, FileVideo, Cpu, Play, Pause, CheckCircle2, ShieldAlert, ArrowRight, Compass, Ticket, QrCode, RefreshCw, Eye, BarChart2, Zap } from "lucide-react";
+import { ArrowLeft, Upload, FileVideo, Cpu, Play, Pause, CheckCircle2, RefreshCw, Eye, BarChart2, Zap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -11,16 +11,6 @@ declare global {
     tf?: any;
     cocoSsd?: any;
   }
-}
-
-interface DependantMetrics {
-  detected: number;
-  moving: number;
-  stationary: number;
-  speed: string;
-  density: string;
-  rerouteTarget: string;
-  status: string;
 }
 
 export default function LiveRoutingPage() {
@@ -33,7 +23,6 @@ export default function LiveRoutingPage() {
   const [processStage, setProcessStage] = useState<string>("");
   const [analysisDone, setAnalysisDone] = useState<boolean>(false);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
-  const [ticketModalOpen, setTicketModalOpen] = useState<boolean>(false);
 
   // Live Real Neural Network Detection Metrics
   const [liveDetectedCount, setLiveDetectedCount] = useState<number>(0);
@@ -56,7 +45,6 @@ export default function LiveRoutingPage() {
     const loadTfAndCoco = async () => {
       setIsModelLoading(true);
 
-      // Function to dynamically append script tags
       const loadScript = (src: string): Promise<void> => {
         return new Promise((resolve, reject) => {
           if (document.querySelector(`script[src="${src}"]`)) {
@@ -537,106 +525,7 @@ export default function LiveRoutingPage() {
             </div>
           </section>
         )}
-
-        {/* SECTION 3: GATE REROUTING & RETURN PASS TICKET MODAL */}
-        <section className="space-y-4 pt-6 border-t border-sandstone/15">
-          <div className="flex items-center justify-between">
-            <h2 className="font-serif text-2xl text-parchment font-semibold flex items-center gap-2">
-              <Compass className="w-5 h-5 text-temple-gold" />
-              3. Automated Gate Rerouting & Fast-Track Return Pass
-            </h2>
-
-            <button
-              onClick={() => setTicketModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all shadow-temple-glow cursor-pointer"
-            >
-              <Ticket className="w-4 h-4" />
-              <span>Generate Fast-Track Return Pass Ticket</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sandstone">GATE_A (Lion Gate):</span>
-                <span className={`font-bold ${liveGateUtil >= 75 ? "text-red-400" : "text-emerald-400"}`}>
-                  {liveGateUtil}% ({liveGateUtil >= 75 ? "CRITICAL" : "NORMAL"})
-                </span>
-              </div>
-              <p className="text-[11px] text-sandstone/80">Wait time: {liveGateUtil >= 75 ? "55 mins" : "12 mins"}. Real-time neural stream monitor.</p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-dusk-card border-2 border-temple-gold shadow-lg space-y-2">
-              <div className="flex justify-between">
-                <span className="text-parchment font-bold">GATE_B (Horse Gate):</span>
-                <span className="text-emerald-400 font-bold">21% (RECOMMENDED)</span>
-              </div>
-              <p className="text-[11px] text-temple-gold">Wait time: 8 mins. Redirecting 65% inflow here.</p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sandstone">Konark Circuit:</span>
-                <span className="text-emerald-400 font-bold">35 km (LOW LOAD)</span>
-              </div>
-              <p className="text-[11px] text-sandstone/80">Return Slot: 5:00 PM - 5:30 PM</p>
-            </div>
-
-            <div className="p-4 rounded-xl bg-dusk-card border border-sandstone/20 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sandstone">Raghurajpur Crafts:</span>
-                <span className="text-emerald-400 font-bold">12 km (LOW LOAD)</span>
-              </div>
-              <p className="text-[11px] text-sandstone/80">Pattachitra Arts & Heritage Village</p>
-            </div>
-          </div>
-        </section>
       </main>
-
-      {/* Fast-Track Ticket Modal */}
-      {ticketModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-charcoal border border-temple-gold/50 rounded-3xl p-8 max-w-md w-full space-y-6 text-center shadow-2xl relative">
-            <div className="w-12 h-12 rounded-2xl bg-temple-gold/20 border border-temple-gold/40 flex items-center justify-center text-temple-gold mx-auto">
-              <QrCode className="w-6 h-6" />
-            </div>
-
-            <div className="space-y-1">
-              <span className="text-xs font-mono text-temple-gold uppercase tracking-widest font-bold">
-                FAST-TRACK RETURN PASS TICKET
-              </span>
-              <h3 className="font-serif text-2xl text-parchment font-bold">Shree Jagannath Puri Temple</h3>
-              <p className="text-xs text-sandstone">Valid for Entry at Gate B (Ashwadwara)</p>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-stone-dark border border-sandstone/20 space-y-2 text-xs font-mono text-sandstone text-left">
-              <div className="flex justify-between border-b border-sandstone/15 pb-1">
-                <span>VALID TIME SLOT:</span>
-                <span className="text-emerald-400 font-bold">5:00 PM - 5:30 PM</span>
-              </div>
-              <div className="flex justify-between border-b border-sandstone/15 pb-1">
-                <span>RECOMMENDED GATE:</span>
-                <span className="text-temple-gold font-bold">Gate B (Ashwadwara)</span>
-              </div>
-              <div className="flex justify-between border-b border-sandstone/15 pb-1">
-                <span>NEURAL DETECTED CROWD:</span>
-                <span className="text-emerald-400 font-bold">{liveDetectedCount} PPL</span>
-              </div>
-              <div className="flex justify-between">
-                <span>CIRCUIT BONUS:</span>
-                <span className="text-temple-gold">Konark Heritage Visit</span>
-              </div>
-            </div>
-
-            <button
-              onClick={() => setTicketModalOpen(false)}
-              className="w-full py-3 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all cursor-pointer"
-            >
-              Close Ticket
-            </button>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>
