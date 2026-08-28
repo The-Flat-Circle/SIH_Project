@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Camera, Cpu, Activity, LineChart, GitFork, Compass, LayoutDashboard, Code, CheckCircle } from "lucide-react";
 
 export default function PipelineSection() {
-  const [activeStage, setActiveStage] = useState<number>(1);
+  const [activeStage, setActiveStage] = useState<number>(4);
 
   const pipelineStages = [
     {
@@ -28,7 +28,7 @@ export default function PipelineSection() {
       icon: Cpu,
       description: "Executes real-time person detection, bounding box extraction, and density mapping across camera frames.",
       schema: {
-        timestamp: "2026-08-27T18:45:00Z",
+        timestamp: "2026-08-28T20:00:00Z",
         crowd_number: 180,
         gate_no: "Gate_A",
         density: "high",
@@ -50,16 +50,17 @@ export default function PipelineSection() {
     },
     {
       id: 4,
-      name: "Prediction Engine",
+      name: "Analytics Engine",
       tech: "Prophet + Scikit-Learn",
       icon: LineChart,
-      description: "Forecasts crowd growth, queue waiting time, and capacity overflow probability for the next 15–30 minutes.",
+      description: "Forecasts crowd growth, capacity utilization, risk scores, and congestion probability for the next 15 minutes.",
       schema: {
         zone: "Gate_A",
-        capacity_utilization: 90,
-        predicted_crowd: 230,
+        capacity_utilization: 72.0,
+        risk: { level: "moderate", score: 72 },
+        predicted_crowd: 211,
         prediction_window: "15min",
-        congestion_probability: 85,
+        congestion_probability: 84,
       },
     },
     {
@@ -69,9 +70,13 @@ export default function PipelineSection() {
       icon: GitFork,
       description: "Generates optimal operational actions: trigger gate rerouting, issue overcrowding alerts, and select return-slots.",
       schema: {
-        alerts: [{ severity: "high", zone: "Gate_A", message: "Gate approaching 90% capacity" }],
-        recommended_action: "Redirect visitors to Gate B",
+        alerts: [
+          { severity: "medium", zone: "Gate_A", message: "Crowd levels increasing" },
+          { severity: "high", zone: "Gate_A", message: "High congestion expected in next 15 minutes" },
+        ],
+        internal_rerouting: { recommended_gate: "Gate_E", crowd_count: 40, occupancy: 27 },
         recommended_visit_time: "5:00 PM",
+        recommended_action: "Redirect visitors to Gate_E",
       },
     },
     {
@@ -79,12 +84,23 @@ export default function PipelineSection() {
       name: "Dual Redistribution",
       tech: "Geospatial Circuit Optimizer",
       icon: Compass,
-      description: "Balances internal gates while promoting nearby heritage sites (Raghurajpur), local food (Mahaprasad), and culture.",
+      description: "Balances internal gates while promoting nearby heritage sites (Konark, Raghurajpur), local food, and culture.",
       schema: {
-        internal_rerouting: { recommended_gate: "Gate_B", occupancy: 30 },
         external_recommendations: {
-          heritage_sites: [{ name: "Raghurajpur Village", distance: "12 km" }],
-          food: [{ name: "Ananda Bazar Mahaprasad", distance: "200 m" }],
+          heritage_sites: [
+            { name: "Konark Sun Temple", distance: "35 km", crowd_level: "low" },
+            { name: "Raghurajpur Heritage Village", distance: "12 km", crowd_level: "low" },
+            { name: "Narendra Tank", distance: "2 km", crowd_level: "low" },
+            { name: "Blue Flag Beach", distance: "4 km", crowd_level: "moderate" },
+          ],
+          food: [
+            { name: "Mahaprasad", distance: "500 m" },
+            { name: "Khaja Market", distance: "700 m" },
+          ],
+          culture: [
+            { name: "Pattachitra Workshop", distance: "10 km" },
+            { name: "Gotipua Dance Performance", distance: "8 km" },
+          ],
         },
       },
     },
@@ -102,7 +118,7 @@ export default function PipelineSection() {
     },
   ];
 
-  const currentStage = pipelineStages.find((s) => s.id === activeStage) || pipelineStages[0];
+  const currentStage = pipelineStages.find((s) => s.id === activeStage) || pipelineStages[3];
 
   return (
     <section id="pipeline" className="py-24 bg-stone-charcoal relative temple-grid-pattern">
@@ -120,11 +136,11 @@ export default function PipelineSection() {
           </h2>
 
           <p className="text-sandstone text-base leading-relaxed">
-            Click any stage in the flow sequence below to inspect the underlying machine learning models, domain logic, and real JSON API payloads exchanged across modules.
+            Click any stage in the flow sequence below to inspect the underlying machine learning models, domain logic, and real JSON API payloads produced by the Analytics Engine.
           </p>
         </div>
 
-        {/* Pipeline Flow Stepper (Horizontal Scroll on Mobile) */}
+        {/* Pipeline Flow Stepper */}
         <div className="overflow-x-auto pb-6 mb-8 scrollbar-thin">
           <div className="flex items-center min-w-[900px] justify-between relative">
             {/* Connecting Track Line */}
@@ -196,7 +212,7 @@ export default function PipelineSection() {
               <span>SCHEMA_VER_1.0</span>
             </div>
 
-            <div className="p-4 rounded-xl bg-stone-dark border border-sandstone/20 font-mono text-xs text-parchment overflow-x-auto">
+            <div className="p-4 rounded-xl bg-stone-dark border border-sandstone/20 font-mono text-xs text-parchment overflow-x-auto max-h-[300px]">
               <pre className="text-temple-light">{JSON.stringify(currentStage.schema, null, 2)}</pre>
             </div>
           </div>
