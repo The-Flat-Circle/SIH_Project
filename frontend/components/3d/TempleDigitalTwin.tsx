@@ -167,8 +167,8 @@ function VaishnoDeviStructure({ densityLevel }: { densityLevel: string }) {
         <meshStandardMaterial color="#F8FAFC" roughness={0.3} />
       </mesh>
       {/* Cave Sanctum Gold Archway */}
-      <mesh position={[0, 0.95, 1.58]}>
-        <cylinderGeometry args={[0.3, 0.3, 0.1, 16]} rotation={[Math.PI / 2, 0, 0]} />
+      <mesh position={[0, 0.95, 1.58]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderGeometry args={[0.3, 0.3, 0.1, 16]} />
         <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.5} metalness={0.7} />
       </mesh>
 
