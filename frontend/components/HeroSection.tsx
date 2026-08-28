@@ -86,31 +86,9 @@ export default function HeroSection({
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
           
-          {/* Left Column: Headline & Value Proposition */}
-          <div className="lg:col-span-6 space-y-5 text-left">
+          {/* Left Column: Headline, Value Proposition, Destination Selector */}
+          <div className="lg:col-span-6 space-y-6 text-left">
             
-            {/* Top Destination Selector Pills for 6 Sites */}
-            <div className="flex flex-col space-y-2">
-              <span className="text-[10px] font-mono text-sandstone/70 uppercase tracking-widest flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-temple-gold" /> PILGRIMAGE DESTINATIONS (6 SITES ACTIVE):
-              </span>
-              <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-stone-charcoal/90 border border-sandstone/30 backdrop-blur-md">
-                {DESTINATIONS.map((dest) => (
-                  <button
-                    key={dest.id}
-                    onClick={() => setSelectedSite(dest.id)}
-                    className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition-all ${
-                      selectedSite === dest.id
-                        ? "bg-temple-gold text-stone-charcoal shadow-md"
-                        : "text-sandstone hover:text-parchment hover:bg-stone-charcoal/60"
-                    }`}
-                  >
-                    {dest.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Headline Ticker */}
             <div className="min-h-[130px] sm:min-h-[150px] flex flex-col justify-start">
               <div className="h-[46px] sm:h-[54px] overflow-hidden relative">
@@ -133,13 +111,35 @@ export default function HeroSection({
               </h2>
             </div>
 
-            {/* Subheading */}
+            {/* Subheading Paragraph */}
             <p className="text-sandstone text-sm sm:text-base leading-relaxed max-w-xl font-normal">
               An intelligent 3D Digital Twin and predictive AI system for high-density pilgrimage destinations. Forecast 15-minute crowd surges and balance internal gate loads.
             </p>
 
+            {/* Pilgrimage Destination Selector (Placed below the paragraph) */}
+            <div className="flex flex-col space-y-2 pt-1">
+              <span className="text-[10px] font-mono text-sandstone/70 uppercase tracking-widest flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-temple-gold" /> PILGRIMAGE DESTINATIONS (6 SITES ACTIVE):
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl bg-stone-charcoal/90 border border-sandstone/30 backdrop-blur-md max-w-xl">
+                {DESTINATIONS.map((dest) => (
+                  <button
+                    key={dest.id}
+                    onClick={() => setSelectedSite(dest.id)}
+                    className={`px-3 py-1 rounded-xl text-xs font-mono font-bold transition-all ${
+                      selectedSite === dest.id
+                        ? "bg-temple-gold text-stone-charcoal shadow-md"
+                        : "text-sandstone hover:text-parchment hover:bg-stone-charcoal/60"
+                    }`}
+                  >
+                    {dest.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Action Buttons & Simulator Toggle */}
-            <div className="pt-1 flex flex-wrap items-center gap-3">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <a
                 href="#dual-solution"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-temple-gold text-stone-charcoal font-semibold text-sm hover:bg-temple-light transition-all shadow-temple-glow group"
@@ -194,7 +194,7 @@ export default function HeroSection({
 
           {/* Right Column: 3D Digital Twin Container */}
           <div className="lg:col-span-6 relative">
-            {/* R3F 3D Model Component with Compact Height */}
+            {/* R3F 3D Model Component */}
             <TempleDigitalTwin
               densityLevel={densityLevel}
               selectedSite={selectedSite}
