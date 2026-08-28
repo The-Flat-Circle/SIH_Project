@@ -10,9 +10,7 @@ frontend/.next/
 out/
 frontend/out/
 
-# large video files & ML weights (avoid Git HTTP 408 timeout)
-*.mp4
-*.pt
+# exclude scratch videos but ALLOW frontend/public mp4 files
 computer_vision/CV/outputs/*.mp4
 computer_vision/CV/data/videos/*.mp4
 computer_vision/CV/yolov8n.pt

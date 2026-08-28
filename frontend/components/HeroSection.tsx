@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Compass, Users, Activity, Play, Pause, ArrowUpRight, ShieldCheck, MapPin } from "lucide-react";
+import Link from "next/link";
 import TempleDigitalTwin, { SupportedSite } from "./3d/TempleDigitalTwin";
 
 interface HeroSectionProps {
@@ -116,7 +117,7 @@ export default function HeroSection({
               An intelligent 3D Digital Twin and predictive AI system for high-density pilgrimage destinations. Forecast 15-minute crowd surges and balance internal gate loads.
             </p>
 
-            {/* Compact Pilgrimage Destination Selector (Sleek w-fit box without empty right space) */}
+            {/* Compact Pilgrimage Destination Selector */}
             <div className="flex flex-col space-y-1.5 pt-1">
               <span className="text-[9px] font-mono text-sandstone/70 uppercase tracking-widest flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-temple-gold" /> PILGRIMAGE DESTINATIONS (6 SITES):
@@ -140,17 +141,17 @@ export default function HeroSection({
 
             {/* Action Buttons & Simulator Toggle */}
             <div className="pt-2 flex flex-wrap items-center gap-3">
-              <a
-                href="#dual-solution"
+              <Link
+                href="/live-routing"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-temple-gold text-stone-charcoal font-semibold text-sm hover:bg-temple-light transition-all shadow-temple-glow group"
               >
                 <span>Explore Live Rerouting</span>
                 <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-              </a>
+              </Link>
 
               <button
                 onClick={() => setIsSimulating(!isSimulating)}
-                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-dusk-card/80 border border-sandstone/30 text-sandstone text-xs font-mono hover:text-parchment hover:border-sandstone/60 transition-all backdrop-blur-sm"
+                className="inline-flex items-center gap-2 px-4 py-3 rounded-xl bg-dusk-card/80 border border-sandstone/30 text-sandstone text-xs font-mono hover:text-parchment hover:border-sandstone/60 transition-all backdrop-blur-sm cursor-pointer"
               >
                 {isSimulating ? (
                   <>
