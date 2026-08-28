@@ -10,6 +10,13 @@ frontend/.next/
 out/
 frontend/out/
 
+# large video files & ML weights (avoid Git HTTP 408 timeout)
+*.mp4
+*.pt
+computer_vision/CV/outputs/*.mp4
+computer_vision/CV/data/videos/*.mp4
+computer_vision/CV/yolov8n.pt
+
 # logs
 *.log
 npm-debug.log*
