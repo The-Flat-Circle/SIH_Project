@@ -1,0 +1,11 @@
+type,name,distance,crowd_level
+heritage,Konark Sun Temple,35 km,low
+heritage,Raghurajpur Heritage Village,12 km,low
+heritage,Narendra Tank,2 km,low
+heritage,Blue Flag Beach,4 km,moderate
+food,Mahaprasad,500 m,low
+food,Khaja Market,700 m,low
+food,Ananda Bazaar,300 m,moderate
+culture,Pattachitra Workshop,10 km,low
+culture,Gotipua Dance Performance,8 km,low
+culture,Local Handicraft Market,2 km,moderate
