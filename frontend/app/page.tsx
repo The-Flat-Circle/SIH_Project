@@ -16,7 +16,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-stone-charcoal text-parchment relative selection:bg-temple-gold selection:text-stone-charcoal">
       {/* Fixed Header */}
-      <Navbar densityLevel={densityLevel} setDensityLevel={setDensityLevel} />
+      <Navbar />
 
       {/* Main Page Sections */}
       <HeroSection densityLevel={densityLevel} setDensityLevel={setDensityLevel} />
