@@ -30,16 +30,15 @@ export function LoginGate({
   const router = useRouter();
   const [pupilOffset, setPupilOffset] = useState({ x: 0, y: 0 });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeRoleTab, setActiveRoleTab] = useState<"tourist" | "admin">("admin");
+  const [activeRoleTab, setActiveRoleTab] = useState<"tourist" | "admin">("tourist");
 
-  // Track cursor position to update pupil offset and tilt positions
+  // Track cursor position to update pupil offset
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const dx = e.clientX - window.innerWidth / 2;
       const dy = e.clientY - window.innerHeight / 2;
       const angle = Math.atan2(dy, dx);
 
-      // Limit pupil motion to a maximum offset of 5 pixels
       const maxOffset = 5;
       const distance = Math.min(maxOffset, Math.sqrt(dx * dx + dy * dy) * 0.015);
 
@@ -59,17 +58,23 @@ export function LoginGate({
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user?.email) {
         const userEmail = session.user.email.toLowerCase();
-        const isAuthorized = AUTHORIZED_ADMIN_EMAILS.includes(userEmail);
+        const isAuthorizedAdmin = AUTHORIZED_ADMIN_EMAILS.includes(userEmail);
+        
+        // Restore target role tab from sessionStorage if set prior to redirect
+        const savedRole = sessionStorage.getItem("login_target_role") as "tourist" | "admin" | null;
+        const targetRole = savedRole || activeRoleTab;
 
-        if (activeRoleTab === "admin" && !isAuthorized) {
-          setAuthError(`ACCESS DENIED: ${userEmail} is not authorized for Admin Control Room access.`);
+        if (targetRole === "admin" && !isAuthorizedAdmin) {
+          setAuthError(`ACCESS DENIED: ${userEmail} is not authorized for Admin Control Room access. Registered administrative credentials required.`);
           await supabase.auth.signOut();
-        } else if (isAuthorized) {
+        } else if (targetRole === "admin" && isAuthorizedAdmin) {
           if (onAuthSuccess) onAuthSuccess(session.user);
           sessionStorage.setItem("yatra_admin_user", userEmail);
           router.push("/admin");
         } else {
+          // TOURIST MODE: Allow ALL Gmail accounts to log in successfully!
           if (onAuthSuccess) onAuthSuccess(session.user);
+          sessionStorage.setItem("yatra_tourist_user", userEmail);
           router.push("/");
         }
       }
@@ -78,9 +83,21 @@ export function LoginGate({
     checkUserSession();
   }, [activeRoleTab, onAuthSuccess, router, setAuthError]);
 
+  const handleRoleTabSwitch = (newRole: "tourist" | "admin") => {
+    setActiveRoleTab(newRole);
+    setAuthError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("login_target_role", newRole);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setAuthError("");
     setIsSubmitting(true);
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("login_target_role", activeRoleTab);
+    }
 
     try {
       const { error } = await signInWithGoogle();
@@ -238,7 +255,7 @@ export function LoginGate({
             {/* Role Switcher */}
             <div className="flex gap-1 p-1 rounded-lg bg-slate-900 border border-white/10 font-mono text-[10px]">
               <button
-                onClick={() => setActiveRoleTab("admin")}
+                onClick={() => handleRoleTabSwitch("admin")}
                 className={`px-2.5 py-1 rounded font-bold transition-all ${
                   activeRoleTab === "admin" ? "bg-amber-500 text-slate-950" : "text-slate-400 hover:text-white"
                 }`}
@@ -246,7 +263,7 @@ export function LoginGate({
                 Admin
               </button>
               <button
-                onClick={() => setActiveRoleTab("tourist")}
+                onClick={() => handleRoleTabSwitch("tourist")}
                 className={`px-2.5 py-1 rounded font-bold transition-all ${
                   activeRoleTab === "tourist" ? "bg-amber-500 text-slate-950" : "text-slate-400 hover:text-white"
                 }`}
@@ -263,8 +280,8 @@ export function LoginGate({
               </h1>
               <p className="text-slate-300 text-xs leading-relaxed">
                 {activeRoleTab === "admin"
-                  ? "Sign in with your authorized email to access live control room telemetry."
-                  : "Sign in with Google to claim fast-track passes and personalized recommendations."}
+                  ? "Restricted to authorized KIIT administrative credentials."
+                  : "Sign in with ANY Google account to claim fast-track passes and personalized recommendations."}
               </p>
             </div>
 
@@ -302,7 +319,9 @@ export function LoginGate({
                         d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.99 5.99 0 0 1 8 12.5a5.99 5.99 0 0 1 5.99-6c1.472 0 2.8.534 3.824 1.416l3.21-3.21C18.99 2.764 16.5 1.5 13.99 1.5A11 11 0 0 0 3 12.5a11 11 0 0 0 10.99 11c5.96 0 10.01-4.11 10.01-10.03 0-.64-.06-1.3-.17-1.89l-11.59-.295z"
                       />
                     </svg>
-                    <span>Sign in with Google</span>
+                    <span>
+                      {activeRoleTab === "admin" ? "Sign in as Admin with Google" : "Sign in as Tourist with Google"}
+                    </span>
                   </>
                 )}
               </motion.button>
@@ -311,7 +330,11 @@ export function LoginGate({
 
           <div className="flex items-center gap-2 border-t border-white/10 pt-3 text-[10px] text-slate-400 font-mono">
             <Lock className="w-3.5 h-3.5 text-amber-400/60" />
-            <span>Admin access is automatically verified upon Google Sign-In.</span>
+            <span>
+              {activeRoleTab === "admin"
+                ? "Restricted to authorized KIIT admin emails."
+                : "Open access for all tourists and pilgrims."}
+            </span>
           </div>
         </div>
       </motion.div>
