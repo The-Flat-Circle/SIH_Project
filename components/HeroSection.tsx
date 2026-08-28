@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowRight, MapPin, Activity } from "lucide-react";
 
 // Dynamically import 3D Canvas to prevent SSR hydration mismatches
@@ -22,6 +23,26 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ densityLevel, setDensityLevel }: HeroSectionProps) {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+
+  // Dynamic Synonym Phrases for continuous 0.8s animation
+  const dynamicPhrases = [
+    "Predict crowd congestion.",
+    "Forecast queue bottlenecks.",
+    "Anticipate visitor surges.",
+    "Preempt temple overcrowding.",
+    "Optimize pilgrimage flow.",
+    "Detect spatial bottlenecks.",
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((prev) => (prev + 1) % dynamicPhrases.length);
+    }, 1000); // 1.0 second ticker interval
+
+    return () => clearInterval(interval);
+  }, [dynamicPhrases.length]);
+
   const heritageSites = [
     { name: "Jagannath Temple, Puri", status: "FLAGSHIP PILOT", active: true },
     { name: "Tirupati Balaji", status: "MAPPED", active: false },
@@ -59,10 +80,25 @@ export default function HeroSection({ densityLevel, setDensityLevel }: HeroSecti
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column: Copy & Pitch */}
+          {/* Left Column: Animated Headline & Pitch */}
           <div className="lg:col-span-6 space-y-6">
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.12] text-parchment tracking-tight drop-shadow-lg">
-              Predict crowd congestion. <br />
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-normal leading-[1.12] text-parchment tracking-tight drop-shadow-lg min-h-[140px] sm:min-h-[160px] flex flex-col justify-start">
+              {/* Dynamic Animated Synonym Text Ticker */}
+              <span className="block relative overflow-hidden text-temple-gold font-semibold pb-1">
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={phraseIndex}
+                    initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+                    animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                    exit={{ y: -20, opacity: 0, filter: "blur(4px)" }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="block"
+                  >
+                    {dynamicPhrases[phraseIndex]}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-temple-gold via-parchment to-temple-amber italic font-semibold">
                 Redistribute tourism flow
               </span>{" "}
