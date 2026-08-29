@@ -1,146 +1,126 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, ShieldCheck, UserCheck, AlertCircle } from "lucide-react";
-import { signInWithGoogle } from "@/lib/supabaseClient";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Play, Pause, Camera, Cpu, Eye, Zap } from "lucide-react";
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess?: (user: { email: string; name: string; role: "tourist" | "admin" }) => void;
 }
 
-export default function AuthModal({ isOpen, onClose, onLoginSuccess }: AuthModalProps) {
-  const [loading, setLoading] = useState(false);
-  const [role, setRole] = useState<"tourist" | "admin">("tourist");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const [isPlaying, setIsPlaying] = useState<boolean>(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (isOpen && videoRef.current) {
+      videoRef.current.play().catch(() => {});
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleGoogleLogin = async () => {
-    setLoading(true);
-    setErrorMessage(null);
-    try {
-      const { data, error } = await signInWithGoogle();
-      if (error) {
-        setErrorMessage(error.message);
-      } else if (onLoginSuccess) {
-        onLoginSuccess({
-          email: "pilgrim.user@gmail.com",
-          name: "Pilgrim Visitor",
-          role: role,
-        });
+  const togglePlayPause = () => {
+    if (videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setIsPlaying(false);
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || "Failed to initialize Google Auth");
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-dark/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-md p-6 rounded-2xl bg-stone-charcoal border border-sandstone/30 shadow-2xl space-y-6 text-parchment font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-dark/85 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="relative w-full max-w-4xl p-6 rounded-3xl bg-stone-charcoal border border-temple-gold/40 shadow-2xl space-y-5 text-parchment font-sans">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-sandstone hover:text-parchment hover:bg-dusk-indigo/60 transition-colors"
+          className="absolute top-4 right-4 p-2 rounded-full text-sandstone hover:text-parchment hover:bg-stone-dark transition-colors z-30 cursor-pointer"
         >
-          <X className="w-5 h-5" />
+          <X className="w-6 h-6" />
         </button>
 
         {/* Modal Header */}
-        <div className="space-y-2 text-center">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-dusk-indigo border border-temple-gold/40 text-temple-gold mx-auto font-serif text-xl font-bold shadow-temple-glow">
-            Y
+        <div className="flex items-center justify-between border-b border-sandstone/15 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-temple-gold/20 border border-temple-gold/40 flex items-center justify-center text-temple-gold font-serif font-bold text-xl shadow-temple-glow">
+              <Camera className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif text-xl sm:text-2xl text-parchment font-semibold">
+                  Live Crowd Pipeline Demo Stream
+                </h3>
+                <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold uppercase">
+                  YOLOv8 LIVE
+                </span>
+              </div>
+              <p className="text-xs text-sandstone font-mono">
+                Source: Generate_a_video_where_a_crowd.mp4 (Temple Crowd Reference Stream)
+              </p>
+            </div>
           </div>
-          <h3 className="font-serif text-2xl text-parchment font-semibold">
-            Sign In to YatraFlow
-          </h3>
-          <p className="text-xs text-sandstone font-mono">
-            DUAL-TRUST AUTHENTICATION ENGINE
-          </p>
         </div>
 
-        {/* Role Selector Tabs */}
-        <div className="grid grid-cols-2 gap-2 p-1 rounded-xl bg-stone-dark border border-sandstone/20 font-mono text-xs">
-          <button
-            onClick={() => setRole("tourist")}
-            className={`py-2 px-3 rounded-lg font-bold transition-all ${
-              role === "tourist"
-                ? "bg-temple-gold text-stone-charcoal shadow-sm"
-                : "text-sandstone hover:text-parchment"
-            }`}
-          >
-            Tourist / Pilgrim
-          </button>
-          <button
-            onClick={() => setRole("admin")}
-            className={`py-2 px-3 rounded-lg font-bold transition-all ${
-              role === "admin"
-                ? "bg-temple-gold text-stone-charcoal shadow-sm"
-                : "text-sandstone hover:text-parchment"
-            }`}
-          >
-            Control Room Admin
-          </button>
-        </div>
+        {/* Video Player Box */}
+        <div className="relative rounded-2xl overflow-hidden bg-stone-dark border border-sandstone/30 shadow-2xl h-[340px] sm:h-[440px] flex items-center justify-center group">
+          <video
+            ref={videoRef}
+            src="/generate_video_crowd.mp4"
+            autoPlay
+            loop
+            muted
+            playsInline
+            controls={false}
+            className="w-full h-full object-cover filter brightness-[0.95]"
+          />
 
-        {/* Error Alert */}
-        {errorMessage && (
-          <div className="p-3 rounded-xl bg-vermilion-dark/30 border border-vermilion/50 text-xs text-vermilion-glow font-mono flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{errorMessage}</span>
+          {/* Play / Pause Control Button */}
+          <button
+            onClick={togglePlayPause}
+            className="absolute bottom-4 right-4 p-3 rounded-xl bg-slate-950/80 hover:bg-slate-900 border border-white/20 text-white backdrop-blur-md transition-all cursor-pointer shadow-lg z-20"
+          >
+            {isPlaying ? <Pause className="w-5 h-5 text-amber-400" /> : <Play className="w-5 h-5 text-emerald-400" />}
+          </button>
+
+          {/* Real-time Telemetry Card Overlay */}
+          <div className="absolute top-4 left-4 p-4 rounded-xl bg-stone-charcoal/90 border border-sandstone/30 text-xs font-mono text-parchment backdrop-blur-md space-y-1.5 shadow-2xl z-20 max-w-sm">
+            <div className="text-emerald-400 font-bold flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>YOLOv8 STREAM REFERENCE ACTIVE</span>
+            </div>
+            <div className="text-slate-300 font-bold">File: Generate_a_video_where_a_crowd.mp4</div>
+            <div className="text-sandstone">
+              Detected Crowd: <span className="text-emerald-400 font-bold">185 PPL</span>
+            </div>
+            <div className="text-sandstone">
+              Moving: <span className="text-emerald-400 font-bold">142 PPL</span> | Stationary:{" "}
+              <span className="text-amber-400 font-bold">43 PPL</span>
+            </div>
+            <div className="text-temple-gold font-bold">
+              Avg Speed: 0.14 m/s | Gate Load: HIGH (88.4%)
+            </div>
           </div>
-        )}
-
-        {/* Role Description Box */}
-        <div className="p-3.5 rounded-xl bg-dusk-card border border-sandstone/20 text-xs font-mono text-sandstone space-y-1">
-          {role === "tourist" ? (
-            <>
-              <span className="text-temple-gold font-bold block">✓ Tourist 1-Click Access</span>
-              <span>Claim fast-track return passes & receive SMS gate alerts on your phone.</span>
-            </>
-          ) : (
-            <>
-              <span className="text-vermilion-glow font-bold block">🔒 Verified Authority Login</span>
-              <span>Access live command center controls & manual gate override actions.</span>
-            </>
-          )}
         </div>
 
-        {/* One-Click Google Auth Button */}
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-parchment hover:bg-parchment-light text-stone-charcoal font-mono text-xs font-bold transition-all shadow-lg active:scale-95 disabled:opacity-50"
-        >
-          {/* Google Icon SVG */}
-          <svg className="w-4 h-4" viewBox="0 0 24 24">
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-            />
-          </svg>
-          {loading ? "AUTHENTICATING..." : `CONTINUE WITH GOOGLE (${role.toUpperCase()})`}
-        </button>
-
-        {/* Footer Note */}
-        <p className="text-[10px] text-center text-sandstone/60 font-mono">
-          Protected by Supabase Auth OAuth 2.0 SSL Encryption
-        </p>
+        {/* Footer Metrics */}
+        <div className="grid grid-cols-3 gap-3 text-xs font-mono text-center">
+          <div className="p-3 rounded-xl bg-stone-dark border border-sandstone/20">
+            <span className="text-sandstone/70 block text-[10px]">CROWD INFLOW</span>
+            <span className="text-parchment font-bold text-sm">48 PPL / min</span>
+          </div>
+          <div className="p-3 rounded-xl bg-stone-dark border border-sandstone/20">
+            <span className="text-sandstone/70 block text-[10px]">CONGESTION LEVEL</span>
+            <span className="text-amber-400 font-bold text-sm">88.4% (SURGE)</span>
+          </div>
+          <div className="p-3 rounded-xl bg-stone-dark border border-sandstone/20">
+            <span className="text-sandstone/70 block text-[10px]">RECOMMENDED ACTION</span>
+            <span className="text-emerald-400 font-bold text-sm">Reroute to Gate B</span>
+          </div>
+        </div>
       </div>
     </div>
   );
