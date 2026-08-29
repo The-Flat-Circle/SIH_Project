@@ -1,13 +1,76 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Play, Menu, X, ShieldCheck, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Play, Menu, X, ShieldCheck, User, LogOut, LayoutDashboard } from "lucide-react";
 import AuthModal from "./AuthModal";
+import { supabase, signOut } from "@/lib/supabaseClient";
 
 export default function Navbar() {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
+  const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
+
+  // Check Auth State on Client Side
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (typeof window !== "undefined") {
+        const adminUser = sessionStorage.getItem("yatra_admin_user");
+        const touristUser = sessionStorage.getItem("yatra_tourist_user");
+
+        if (adminUser) {
+          setLoggedInUser(adminUser);
+          setIsAdminUser(true);
+          return;
+        } else if (touristUser) {
+          setLoggedInUser(touristUser);
+          setIsAdminUser(false);
+          return;
+        }
+      }
+
+      // Check Supabase Active Session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user?.email) {
+        const email = session.user.email.toLowerCase();
+        setLoggedInUser(email);
+        const authorizedAdmins = [
+          "2405872@kiit.ac.in",
+          "2405915@kiit.ac.in",
+          "24051439@kiit.ac.in",
+          "2405780@kiit.ac.in",
+          "24051454@kiit.ac.in",
+          "2405785@kiit.ac.in",
+        ];
+        setIsAdminUser(authorizedAdmins.includes(email));
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const handleLogout = async () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("yatra_admin_user");
+      sessionStorage.removeItem("yatra_tourist_user");
+      sessionStorage.removeItem("login_target_role");
+    }
+    try {
+      await signOut();
+    } catch (e) {
+      console.error(e);
+    }
+    setLoggedInUser(null);
+    setIsAdminUser(false);
+    if (typeof window !== "undefined") {
+      window.location.href = "/login";
+    } else {
+      router.push("/login");
+    }
+  };
 
   const navLinks = [
     { label: "Overview", href: "#problem" },
@@ -56,15 +119,46 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Right Header Buttons */}
+            {/* Right Header Buttons & Auth State */}
             <div className="hidden md:flex items-center gap-3">
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-dusk-card/90 hover:bg-stone-charcoal border border-sandstone/30 text-xs font-mono text-parchment hover:text-temple-gold transition-all shadow-sm"
-              >
-                <User className="w-3.5 h-3.5 text-temple-gold" />
-                <span>Admin Login</span>
-              </Link>
+              {loggedInUser ? (
+                <div className="flex items-center gap-2">
+                  {/* User Email Badge */}
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-dusk-card/90 border border-sandstone/30 text-xs font-mono">
+                    <User className="w-3.5 h-3.5 text-temple-gold" />
+                    <span className="text-sandstone">{isAdminUser ? "ADMIN:" : "USER:"}</span>
+                    <span className="text-parchment font-bold max-w-[150px] truncate">{loggedInUser}</span>
+                  </div>
+
+                  {/* Admin Dashboard Link if Admin */}
+                  {isAdminUser && (
+                    <Link
+                      href="/admin"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold hover:bg-amber-500/30 transition-all"
+                    >
+                      <LayoutDashboard className="w-3.5 h-3.5" />
+                      Dashboard
+                    </Link>
+                  )}
+
+                  {/* Logout Button */}
+                  <button
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/70 hover:bg-red-900 border border-red-500/40 text-red-200 text-xs font-mono font-bold transition-all cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5 text-red-400" />
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-dusk-card/90 hover:bg-stone-charcoal border border-sandstone/30 text-xs font-mono text-parchment hover:text-temple-gold transition-all shadow-sm"
+                >
+                  <User className="w-3.5 h-3.5 text-temple-gold" />
+                  <span>Sign In / Admin Login</span>
+                </Link>
+              )}
 
               <button
                 onClick={() => setAuthModalOpen(true)}
@@ -102,13 +196,39 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full text-center py-2.5 rounded-xl bg-dusk-card border border-sandstone/30 text-xs font-mono text-parchment"
-              >
-                Admin Login
-              </Link>
+              {loggedInUser ? (
+                <div className="space-y-2">
+                  <div className="text-xs font-mono text-sandstone px-2">
+                    Logged in as <span className="text-parchment font-bold">{loggedInUser}</span>
+                  </div>
+                  {isAdminUser && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full text-center py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-xs font-mono text-amber-300 font-bold block"
+                    >
+                      Admin Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full text-center py-2.5 rounded-xl bg-red-950/70 border border-red-500/40 text-xs font-mono text-red-200 font-bold"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center py-2.5 rounded-xl bg-dusk-card border border-sandstone/30 text-xs font-mono text-parchment"
+                >
+                  Sign In / Admin Login
+                </Link>
+              )}
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
