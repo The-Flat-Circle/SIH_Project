@@ -16,12 +16,11 @@ declare global {
 export default function LiveRoutingPage() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoSrc, setVideoSrc] = useState<string>("/real_crowd_output.mp4");
-  const [selectedSample, setSelectedSample] = useState<"sample1" | "sample2">("sample1");
   const [isModelLoading, setIsModelLoading] = useState<boolean>(true);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [processProgress, setProcessProgress] = useState<number>(0);
   const [processStage, setProcessStage] = useState<string>("");
-  const [analysisDone, setAnalysisDone] = useState<boolean>(false);
+  const [analysisDone, setAnalysisDone] = useState<boolean>(true);
   const [isPlaying, setIsPlaying] = useState<boolean>(true);
 
   // Live Real Neural Network Detection Metrics
@@ -274,13 +273,6 @@ export default function LiveRoutingPage() {
     }, 500);
   };
 
-  const handleSelectSample = (key: "sample1" | "sample2") => {
-    setSelectedSample(key);
-    setVideoFile(null);
-    setVideoSrc(key === "sample1" ? "/real_crowd_output.mp4" : "/crowd_night_scaled_output.mp4");
-    runYoloAnalysis(key === "sample1" ? "Singhadwara Gate Surge" : "Night Queue Corridor");
-  };
-
   const togglePlayPause = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -311,12 +303,12 @@ export default function LiveRoutingPage() {
               Real-Time Video Person Detection & <span className="italic text-temple-gold">Rerouting Engine</span>
             </h1>
             <p className="text-sandstone text-sm max-w-2xl mt-1">
-              Upload any test video or choose a sample. Our neural network model runs directly in the browser, detects every person with green bounding boxes, and counts them live throughout the video.
+              Upload your test video below. Our neural network model runs directly in the browser, detects every person with green bounding boxes, and counts them live throughout the video.
             </p>
           </div>
         </div>
 
-        {/* SECTION 1: UPLOAD TEST VIDEO BOX */}
+        {/* SECTION 1: FULL-WIDTH UPLOAD TEST VIDEO BOX */}
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl text-parchment font-semibold flex items-center gap-2">
@@ -326,76 +318,37 @@ export default function LiveRoutingPage() {
             <span className="text-xs font-mono text-sandstone">SUPPORTED: MP4, MOV, AVI (UP TO 500MB)</span>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Drag and Drop Box */}
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className="lg:col-span-7 p-8 rounded-2xl bg-dusk-card border-2 border-dashed border-sandstone/30 hover:border-temple-gold/60 transition-all flex flex-col items-center justify-center text-center cursor-pointer group shadow-xl"
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="video/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
+          {/* Full Width Drag and Drop Box */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className="w-full p-10 rounded-2xl bg-dusk-card border-2 border-dashed border-sandstone/30 hover:border-temple-gold/60 transition-all flex flex-col items-center justify-center text-center cursor-pointer group shadow-xl"
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="video/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
 
-              <div className="w-16 h-16 rounded-2xl bg-temple-gold/15 border border-temple-gold/30 flex items-center justify-center text-temple-gold mb-4 group-hover:scale-110 transition-transform">
-                <FileVideo className="w-8 h-8" />
-              </div>
-
-              <h3 className="font-serif text-xl font-semibold text-parchment group-hover:text-temple-gold transition-colors">
-                {videoFile ? videoFile.name : "Click or Drag & Drop Test Video Here"}
-              </h3>
-              <p className="text-sandstone text-xs max-w-sm mt-1">
-                {videoFile
-                  ? `File loaded: ${(videoFile.size / (1024 * 1024)).toFixed(2)} MB. Neural model will detect every person in real-time.`
-                  : "Upload any CCTV video or test recording. The neural network model will detect people with green bounding boxes and count them live."}
-              </p>
-
-              <button className="mt-4 px-5 py-2.5 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all shadow-temple-glow">
-                Select Video File
-              </button>
+            <div className="w-16 h-16 rounded-2xl bg-temple-gold/15 border border-temple-gold/30 flex items-center justify-center text-temple-gold mb-4 group-hover:scale-110 transition-transform">
+              <FileVideo className="w-8 h-8" />
             </div>
 
-            {/* Quick Sample Selector Cards */}
-            <div className="lg:col-span-5 space-y-3">
-              <span className="text-xs font-mono text-sandstone/80 block uppercase tracking-wider">
-                OR SELECT PRE-CONFIGURED DEMO SAMPLES:
-              </span>
+            <h3 className="font-serif text-xl font-semibold text-parchment group-hover:text-temple-gold transition-colors">
+              {videoFile ? videoFile.name : "Click or Drag & Drop Test Video Here"}
+            </h3>
+            <p className="text-sandstone text-xs max-w-md mt-1.5 leading-relaxed">
+              {videoFile
+                ? `File loaded: ${(videoFile.size / (1024 * 1024)).toFixed(2)} MB. Neural model will detect every person in real-time.`
+                : "Upload any CCTV video recording or test video file. The neural network model will detect people with green bounding boxes and count them live throughout the video."}
+            </p>
 
-              <div
-                onClick={() => handleSelectSample("sample1")}
-                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                  selectedSample === "sample1" && !videoFile
-                    ? "bg-temple-gold/15 border-temple-gold text-parchment shadow-md"
-                    : "bg-dusk-card/70 border-sandstone/20 text-sandstone hover:text-parchment hover:border-sandstone/40"
-                }`}
-              >
-                <div>
-                  <div className="font-serif text-sm font-semibold text-parchment">Sample 1: Singhadwara Gate Overcrowding</div>
-                  <div className="text-[11px] font-mono text-sandstone">Daytime Stream • Live Green Bounding Boxes</div>
-                </div>
-                <Play className="w-4 h-4 text-temple-gold" />
-              </div>
-
-              <div
-                onClick={() => handleSelectSample("sample2")}
-                className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                  selectedSample === "sample2" && !videoFile
-                    ? "bg-temple-gold/15 border-temple-gold text-parchment shadow-md"
-                    : "bg-dusk-card/70 border-sandstone/20 text-sandstone hover:text-parchment hover:border-sandstone/40"
-                }`}
-              >
-                <div>
-                  <div className="font-serif text-sm font-semibold text-parchment">Sample 2: Night Queue Corridor</div>
-                  <div className="text-[11px] font-mono text-sandstone">Night Low Density • Live Detection</div>
-                </div>
-                <Play className="w-4 h-4 text-temple-gold" />
-              </div>
-            </div>
+            <button className="mt-5 px-6 py-3 rounded-xl bg-temple-gold text-stone-charcoal font-mono text-xs font-bold hover:bg-temple-light transition-all shadow-temple-glow">
+              {videoFile ? "Select Different Video" : "Upload Test Video File"}
+            </button>
           </div>
         </section>
 
@@ -479,7 +432,7 @@ export default function LiveRoutingPage() {
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
                   <span>NEURAL PERSON DETECTOR ACTIVE</span>
                 </div>
-                <div className="text-slate-300 font-bold">Video: {videoFile ? videoFile.name : selectedSample === "sample1" ? "Singhadwara Gate Overcrowding" : "Night Queue Corridor"}</div>
+                <div className="text-slate-300 font-bold">Video: {videoFile ? videoFile.name : "Test Video Stream"}</div>
                 <div className="text-sandstone">
                   Detected People: <span className="text-emerald-400 font-bold text-sm">{liveDetectedCount} PPL</span>
                 </div>
