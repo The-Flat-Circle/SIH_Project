@@ -5,12 +5,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Play, Menu, X, ShieldCheck, User, LogOut, LayoutDashboard, Smartphone } from "lucide-react";
 import AuthModal from "./AuthModal";
+import AppDownloadModal from "./AppDownloadModal";
 import { supabase, signOut } from "@/lib/supabaseClient";
 
 export default function Navbar() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [appModalOpen, setAppModalOpen] = useState(false);
   const [loggedInUser, setLoggedInUser] = useState<string | null>(null);
   const [isAdminUser, setIsAdminUser] = useState<boolean>(false);
 
@@ -121,15 +123,14 @@ export default function Navbar() {
 
             {/* Right Header Buttons & Auth State */}
             <div className="hidden md:flex items-center gap-3">
-              {/* Direct APK Download Button */}
-              <a
-                href="/YatraFlow.apk"
-                download="YatraFlow.apk"
-                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold transition-all shadow-sm"
+              {/* Direct App Download Button */}
+              <button
+                onClick={() => setAppModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold transition-all shadow-sm cursor-pointer"
               >
                 <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
                 <span>App (.apk)</span>
-              </a>
+              </button>
 
               {loggedInUser ? (
                 <div className="flex items-center gap-2">
@@ -206,14 +207,15 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
-              <a
-                href="/YatraFlow.apk"
-                download="YatraFlow.apk"
-                onClick={() => setMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setAppModalOpen(true);
+                }}
                 className="w-full text-center py-2.5 rounded-xl bg-emerald-950 border border-emerald-500/40 text-xs font-mono text-emerald-300 font-bold block"
               >
                 Download Android App (.apk)
-              </a>
+              </button>
 
               {loggedInUser ? (
                 <div className="space-y-2">
@@ -264,6 +266,9 @@ export default function Navbar() {
 
       {/* Live Demo Simulation Modal */}
       <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+
+      {/* Mobile App Download Modal */}
+      <AppDownloadModal isOpen={appModalOpen} onClose={() => setAppModalOpen(false)} />
     </>
   );
 }
