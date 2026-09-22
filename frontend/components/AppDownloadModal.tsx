@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Smartphone, Download, Github, CheckCircle2, Zap, ExternalLink } from "lucide-react";
+import React from "react";
+import { X, Smartphone, Download, Github, Zap, ExternalLink, ShieldCheck } from "lucide-react";
 
 interface AppDownloadModalProps {
   isOpen: boolean;
@@ -9,9 +9,10 @@ interface AppDownloadModalProps {
 }
 
 export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalProps) {
-  const [installed, setInstalled] = useState(false);
-
   if (!isOpen) return null;
+
+  const directApkUrl = "https://github.com/The-Flat-Circle/SIH_Project/releases/download/v1.0.0/YatraFlow.apk";
+  const actionsUrl = "https://github.com/The-Flat-Circle/SIH_Project/actions";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-dark/85 backdrop-blur-md animate-in fade-in duration-200">
@@ -32,70 +33,72 @@ export default function AppDownloadModal({ isOpen, onClose }: AppDownloadModalPr
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-serif text-xl sm:text-2xl text-parchment font-semibold">
-                Get YatraFlow Mobile App
+                Download YatraFlow Android App
               </h3>
               <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40 font-bold uppercase">
-                FREE (ANDROID)
+                APK PACKAGE
               </span>
             </div>
             <p className="text-xs text-sandstone font-mono">
-              NATIVE ANDROID APK & PWA INSTANT INSTALL
+              COMPATIBLE WITH ANDROID PACKAGE INSTALLER
             </p>
           </div>
         </div>
 
         {/* Download & Installation Options */}
         <div className="space-y-3">
-          {/* Option 1: Direct APK Download */}
+          {/* Primary Action: Direct Download YatraFlow.apk */}
           <a
-            href="https://github.com/The-Flat-Circle/SIH_Project/actions"
+            href={directApkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between p-4 rounded-2xl bg-dusk-card border border-emerald-500/40 hover:border-emerald-400/80 transition-all group cursor-pointer shadow-lg"
+            className="flex items-center justify-between p-4 rounded-2xl bg-emerald-950/90 border-2 border-emerald-500 hover:bg-emerald-900 transition-all group cursor-pointer shadow-xl"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                <Download className="w-5 h-5" />
+              <div className="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/50 flex items-center justify-center text-emerald-300 group-hover:scale-110 transition-transform">
+                <Download className="w-6 h-6" />
               </div>
               <div>
-                <div className="text-sm font-serif font-semibold text-parchment group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+                <div className="text-base font-serif font-bold text-parchment group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
                   <span>Download YatraFlow.apk</span>
-                  <ExternalLink className="w-3.5 h-3.5 opacity-60" />
+                  <ExternalLink className="w-4 h-4 text-emerald-400" />
                 </div>
-                <div className="text-[11px] font-mono text-sandstone">
-                  Direct GitHub Cloud Artifact (Compiled .apk file)
+                <div className="text-xs font-mono text-emerald-400/90 font-medium">
+                  Direct Download for Android Package Installer (.apk)
                 </div>
               </div>
             </div>
-            <span className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-mono font-bold border border-emerald-500/40">
+            <span className="px-4 py-2 rounded-xl bg-emerald-500 text-stone-charcoal text-xs font-mono font-bold shadow-md">
               Download
             </span>
           </a>
 
-          {/* Option 2: Instant PWA Install (No Download Needed) */}
-          <div className="p-4 rounded-2xl bg-stone-dark border border-sandstone/20 space-y-2">
-            <div className="flex items-center gap-2 text-temple-gold text-xs font-mono font-bold">
-              <Zap className="w-4 h-4 text-temple-gold" />
-              <span>INSTANT INSTALL (NO APK DOWNLOAD NEEDED)</span>
-            </div>
-            <p className="text-xs font-mono text-sandstone leading-relaxed">
-              Open <span className="text-parchment font-bold">yatraaflow.vercel.app</span> on Android Chrome → Tap the 3 dots (⋮) → Tap <span className="text-temple-gold font-bold">"Add to Home Screen"</span> to install YatraFlow directly to your phone screen!
-            </p>
-          </div>
-
-          {/* Option 3: GitHub Repository Code */}
+          {/* Backup Cloud Build Option */}
           <a
-            href="https://github.com/The-Flat-Circle/SIH_Project"
+            href={actionsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between p-3.5 rounded-xl bg-stone-dark/80 border border-sandstone/20 text-xs font-mono text-sandstone hover:text-parchment transition-colors"
+            className="flex items-center justify-between p-3.5 rounded-xl bg-dusk-card border border-sandstone/30 hover:border-sandstone/60 text-xs font-mono text-sandstone hover:text-parchment transition-colors"
           >
             <div className="flex items-center gap-2">
               <Github className="w-4 h-4 text-parchment" />
-              <span>View Android Source Code on GitHub</span>
+              <span>GitHub Actions Build Artifacts (.apk)</span>
             </div>
             <ExternalLink className="w-3.5 h-3.5 text-sandstone" />
           </a>
+
+          {/* Installation Steps Box */}
+          <div className="p-4 rounded-2xl bg-stone-dark border border-sandstone/20 space-y-2">
+            <div className="flex items-center gap-2 text-temple-gold text-xs font-mono font-bold">
+              <ShieldCheck className="w-4 h-4 text-temple-gold" />
+              <span>HOW TO INSTALL ON YOUR PHONE:</span>
+            </div>
+            <ol className="text-xs font-mono text-sandstone leading-relaxed list-decimal list-inside space-y-1">
+              <li>Tap <span className="text-emerald-400 font-bold">"Download YatraFlow.apk"</span> above.</li>
+              <li>When download finishes, tap the notification or open <span className="text-parchment font-bold">Downloads</span>.</li>
+              <li>Select <span className="text-temple-gold font-bold">Package Installer</span> & tap <span className="text-parchment font-bold">Install</span> to launch YatraFlow!</li>
+            </ol>
+          </div>
         </div>
       </div>
     </div>
