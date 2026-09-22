@@ -1,6 +1,4 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
+const config = {
   appId: 'app.vercel.yatraaflow',
   appName: 'YatraFlow',
   webDir: 'public',
