@@ -3,7 +3,7 @@ const config = {
   appName: 'YatraFlow',
   webDir: 'public',
   server: {
-    url: 'https://yatraaflow.vercel.app',
+    url: 'https://yatraaflow.vercel.app/app',
     cleartext: true
   },
   android: {
