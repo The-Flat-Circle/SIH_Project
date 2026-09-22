@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Play, Menu, X, ShieldCheck, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Play, Menu, X, ShieldCheck, User, LogOut, LayoutDashboard, Smartphone } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { supabase, signOut } from "@/lib/supabaseClient";
 
@@ -121,6 +121,16 @@ export default function Navbar() {
 
             {/* Right Header Buttons & Auth State */}
             <div className="hidden md:flex items-center gap-3">
+              {/* Direct APK Download Button */}
+              <a
+                href="/YatraFlow.apk"
+                download="YatraFlow.apk"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-xs font-mono font-bold transition-all shadow-sm"
+              >
+                <Smartphone className="w-3.5 h-3.5 text-emerald-400" />
+                <span>App (.apk)</span>
+              </a>
+
               {loggedInUser ? (
                 <div className="flex items-center gap-2">
                   {/* User Email Badge */}
@@ -196,6 +206,15 @@ export default function Navbar() {
               </a>
             ))}
             <div className="pt-2 flex flex-col gap-2">
+              <a
+                href="/YatraFlow.apk"
+                download="YatraFlow.apk"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2.5 rounded-xl bg-emerald-950 border border-emerald-500/40 text-xs font-mono text-emerald-300 font-bold block"
+              >
+                Download Android App (.apk)
+              </a>
+
               {loggedInUser ? (
                 <div className="space-y-2">
                   <div className="text-xs font-mono text-sandstone px-2">

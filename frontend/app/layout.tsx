@@ -24,6 +24,13 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "YATRA_FLOW // AI Smart Tourism & Crowd Optimization Engine (SIH 2026)",
   description: "Real-time CCTV crowd density estimation, 15-min congestion prediction, internal gate rerouting & external tourism redistribution platform for heritage & pilgrimage destinations.",
+  manifest: "/manifest.json",
+  themeColor: "#C9973E",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "YatraFlow",
+  },
 };
 
 export default function RootLayout({
