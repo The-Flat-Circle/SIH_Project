@@ -84,7 +84,7 @@ const DESTINATIONS = [
     badgeType: "low",
     waitTime: "10 Mins",
     bestGate: "Main Mandap (5 Mins)",
-    image: "/kedarnath_dham.jpg",
+    image: "/kedarnath.avif",
     rating: "5.0",
   },
   {
