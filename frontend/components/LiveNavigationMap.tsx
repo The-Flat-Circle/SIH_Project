@@ -87,11 +87,34 @@ export default function LiveNavigationMap({
 
   const handleTouchEnd = () => setIsDragging(false);
 
-  // Reset zoom & pan whenever temple or navMapImage changes
+  // Reset zoom & pan and run 2.5s map loading animation whenever temple or navMapImage changes
+  const [isMapLoading, setIsMapLoading] = useState<boolean>(true);
+  const [loadingText, setLoadingText] = useState<string>("Calculating Shortest AI Walking Path...");
+
   useEffect(() => {
+    setIsMapLoading(true);
     setScale(1);
     setPosition({ x: 0, y: 0 });
-  }, [navMapImage, templeName]);
+    setLoadingText(`Calculating Shortest AI Path to ${bestGateName}...`);
+
+    const t1 = setTimeout(() => {
+      setLoadingText("Fetching Real-time CCTV Gate Load & Queue Data...");
+    }, 900);
+
+    const t2 = setTimeout(() => {
+      setLoadingText(`Rendering Navigation Route Map for ${templeName}...`);
+    }, 1800);
+
+    const t3 = setTimeout(() => {
+      setIsMapLoading(false);
+    }, 2500);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [navMapImage, templeName, bestGateName]);
 
   // Haversine formula to compute distance in meters
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
@@ -287,16 +310,35 @@ export default function LiveNavigationMap({
         
         {/* MODE 0: GOOGLE MAP STATIC ROUTE IMAGE WITH INTERACTIVE PAN & ZOOM */}
         {mapMode === "image" && (
-          <div
-            className="relative w-full h-full overflow-hidden select-none cursor-grab active:cursor-grabbing bg-stone-950 flex items-center justify-center"
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
+          isMapLoading ? (
+            <div className="relative w-full h-full bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white space-y-4 animate-in fade-in duration-200">
+              <div className="relative w-14 h-14 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full border-2 border-amber-400 border-t-transparent animate-spin" />
+                <Navigation className="w-6 h-6 text-amber-400 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider block">
+                  AI NAVIGATION SYSTEM INITIALIZING
+                </span>
+                <p className="text-xs font-serif font-bold text-amber-300 max-w-xs transition-all">
+                  {loadingText}
+                </p>
+              </div>
+              <div className="w-44 h-1 rounded-full bg-stone-800 overflow-hidden border border-amber-500/20">
+                <div className="h-full bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 animate-pulse w-full" />
+              </div>
+            </div>
+          ) : (
+            <div
+              className="relative w-full h-full overflow-hidden select-none cursor-grab active:cursor-grabbing bg-stone-950 flex items-center justify-center"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
             <div
               className="w-full h-full flex items-center justify-center transition-transform duration-75 ease-out"
               style={{
@@ -342,6 +384,7 @@ export default function LiveNavigationMap({
               <span>Drag to Move • Zoom: {scale.toFixed(1)}x</span>
             </div>
           </div>
+          )
         )}
 
         {/* MODE 1: INTERACTIVE VECTOR STREET MAP */}

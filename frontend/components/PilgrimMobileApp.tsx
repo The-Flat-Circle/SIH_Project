@@ -292,6 +292,16 @@ export default function PilgrimMobileApp() {
     return matchesCategory && matchesSearch;
   });
 
+  // Initial App Startup Splash Loading Animation State
+  const [isAppLoading, setIsAppLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsAppLoading(false);
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
   const toggleFavorite = (id: string) => {
     setFavorites((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -303,7 +313,7 @@ export default function PilgrimMobileApp() {
     setTimeout(() => {
       setIsCalculating(false);
       setActiveTab("route");
-    }, 600);
+    }, 500);
   };
 
   const handleGoogleLogin = async () => {
@@ -324,6 +334,31 @@ export default function PilgrimMobileApp() {
     setUserSession(null);
     setAuthLoading(false);
   };
+
+  if (isAppLoading) {
+    return (
+      <div className={`w-full min-h-screen flex flex-col items-center justify-center p-6 text-center transition-colors duration-300 ${
+        isNightMode ? "bg-[#0B0C0E] text-amber-400" : "bg-[#FAF8F2] text-slate-900"
+      }`}>
+        <div className="relative w-24 h-24 mb-6">
+          <div className="absolute inset-0 rounded-3xl bg-amber-400/30 blur-xl animate-pulse" />
+          <div className="relative w-full h-full rounded-3xl overflow-hidden border-2 border-amber-400 shadow-2xl bg-amber-100 flex items-center justify-center animate-bounce">
+            <Image src="/app-icon.jpg" alt="YatraFlow App Icon" fill className="object-cover" priority />
+          </div>
+        </div>
+
+        <h1 className="font-serif text-3xl font-bold tracking-tight mb-1 text-amber-500">YatraFlow AI</h1>
+        <p className="text-xs font-mono text-stone-400 max-w-xs mb-8 leading-relaxed">
+          Initializing Crowd Density & Shortest Path Engine...
+        </p>
+
+        {/* Animated Loading Bar */}
+        <div className="w-52 h-1.5 rounded-full bg-stone-800/20 overflow-hidden border border-amber-500/30">
+          <div className="h-full bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 animate-pulse w-full" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`w-full min-h-screen font-sans relative flex flex-col pb-28 selection:bg-yellow-300 selection:text-slate-900 overflow-x-hidden transition-colors duration-300 ${
@@ -598,7 +633,7 @@ export default function PilgrimMobileApp() {
                   key={dest.id}
                   onClick={() => {
                     setSelectedSite(dest.id as SupportedSite);
-                    setActiveTab("home");
+                    runBestPathAlgorithm();
                   }}
                   className={`relative rounded-3xl overflow-hidden border shadow-lg flex items-center p-3 gap-3 cursor-pointer group transition-colors ${
                     isNightMode ? "bg-[#161922] border-stone-800 text-white" : "bg-white border-stone-200 text-slate-900"
