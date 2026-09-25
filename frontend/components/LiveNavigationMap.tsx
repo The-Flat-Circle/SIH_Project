@@ -10,6 +10,7 @@ interface LiveNavigationMapProps {
   bestGateName: string;
   gateLat: number;
   gateLng: number;
+  isNightMode?: boolean;
 }
 
 export default function LiveNavigationMap({
@@ -19,6 +20,7 @@ export default function LiveNavigationMap({
   bestGateName,
   gateLat,
   gateLng,
+  isNightMode = false,
 }: LiveNavigationMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
@@ -211,34 +213,36 @@ export default function LiveNavigationMap({
       </div>
 
       {/* MAP CONTAINER (100% RELIABLE) */}
-      <div className="relative w-full h-72 rounded-3xl overflow-hidden border-2 border-amber-300/90 shadow-lg bg-[#EBF0EF]">
+      <div className={`relative w-full h-72 rounded-3xl overflow-hidden border-2 shadow-lg transition-colors ${
+        isNightMode ? "border-amber-500/40 bg-[#0F121C]" : "border-amber-300/90 bg-[#EBF0EF]"
+      }`}>
         
         {/* MODE 1: INTERACTIVE VECTOR STREET MAP (100% GUARANTEED TO SHOW ON EVERY PHONE) */}
         {mapMode === "vector" && (
-          <div className="relative w-full h-full bg-[#EAF0EC] overflow-hidden select-none">
+          <div className={`relative w-full h-full overflow-hidden select-none ${isNightMode ? "bg-[#12151F]" : "bg-[#EAF0EC]"}`}>
             {/* SVG Vector Street Map Background Layer */}
             <svg className="w-full h-full absolute inset-0" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
               {/* Land & Buildings */}
-              <rect width="400" height="300" fill="#EBF0EC" />
+              <rect width="400" height="300" fill={isNightMode ? "#12151F" : "#EBF0EC"} />
               
               {/* Temple Courtyard Polygon */}
-              <rect x="130" y="70" width="140" height="130" rx="16" fill="#FDFBF7" stroke="#D1D5DB" strokeWidth="2" />
-              <rect x="165" y="105" width="70" height="60" rx="8" fill="#FEF08A" stroke="#EAB308" strokeWidth="2" opacity="0.6" />
+              <rect x="130" y="70" width="140" height="130" rx="16" fill={isNightMode ? "#1A1E2B" : "#FDFBF7"} stroke={isNightMode ? "#333A4D" : "#D1D5DB"} strokeWidth="2" />
+              <rect x="165" y="105" width="70" height="60" rx="8" fill={isNightMode ? "#2A2415" : "#FEF08A"} stroke={isNightMode ? "#D97706" : "#EAB308"} strokeWidth="2" opacity="0.6" />
 
               {/* Main Roads */}
-              <path d="M 0 135 L 130 135 M 270 135 L 400 135" stroke="#FFFFFF" strokeWidth="22" strokeLinecap="round" />
-              <path d="M 0 135 L 130 135 M 270 135 L 400 135" stroke="#D1D5DB" strokeWidth="24" strokeLinecap="round" opacity="0.3" />
-              <path d="M 200 0 L 200 70 M 200 200 L 200 300" stroke="#FFFFFF" strokeWidth="20" />
+              <path d="M 0 135 L 130 135 M 270 135 L 400 135" stroke={isNightMode ? "#1D2230" : "#FFFFFF"} strokeWidth="22" strokeLinecap="round" />
+              <path d="M 0 135 L 130 135 M 270 135 L 400 135" stroke={isNightMode ? "#2A3145" : "#D1D5DB"} strokeWidth="24" strokeLinecap="round" opacity="0.4" />
+              <path d="M 200 0 L 200 70 M 200 200 L 200 300" stroke={isNightMode ? "#1D2230" : "#FFFFFF"} strokeWidth="20" />
 
-              <path d="M 40 20 L 40 280" stroke="#FFFFFF" strokeWidth="16" />
-              <path d="M 360 20 L 360 280" stroke="#FFFFFF" strokeWidth="16" />
+              <path d="M 40 20 L 40 280" stroke={isNightMode ? "#1D2230" : "#FFFFFF"} strokeWidth="16" />
+              <path d="M 360 20 L 360 280" stroke={isNightMode ? "#1D2230" : "#FFFFFF"} strokeWidth="16" />
 
               {/* Street Names */}
-              <text x="320" y="220" fontSize="9" fontFamily="sans-serif" fontWeight="bold" fill="#9CA3AF" transform="rotate(-90 320 220)">Grand Road</text>
-              <text x="215" y="45" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill="#9CA3AF">Mangalghat Rd</text>
-              <text x="20" y="160" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill="#9CA3AF" transform="rotate(90 20 160)">Markandeswar Sahi Rd</text>
-              <text x="80" y="125" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill="#9CA3AF">Gadanti Chowk</text>
-              <text x="140" y="245" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill="#9CA3AF">Kapalamochana Mandira</text>
+              <text x="320" y="220" fontSize="9" fontFamily="sans-serif" fontWeight="bold" fill={isNightMode ? "#64748B" : "#9CA3AF"} transform="rotate(-90 320 220)">Grand Road</text>
+              <text x="215" y="45" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill={isNightMode ? "#64748B" : "#9CA3AF"}>Mangalghat Rd</text>
+              <text x="20" y="160" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill={isNightMode ? "#64748B" : "#9CA3AF"} transform="rotate(90 20 160)">Markandeswar Sahi Rd</text>
+              <text x="80" y="125" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill={isNightMode ? "#64748B" : "#9CA3AF"}>Gadanti Chowk</text>
+              <text x="140" y="245" fontSize="8" fontFamily="sans-serif" fontWeight="bold" fill={isNightMode ? "#64748B" : "#9CA3AF"}>Kapalamochana Mandira</text>
 
               {/* Animated Yellow Walking Route Line */}
               <path

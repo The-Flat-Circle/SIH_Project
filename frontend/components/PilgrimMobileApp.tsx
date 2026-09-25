@@ -25,7 +25,9 @@ import {
   X,
   ShieldCheck,
   Navigation,
-  ExternalLink
+  ExternalLink,
+  Moon,
+  Sun
 } from "lucide-react";
 import { supabase, signInWithGoogle } from "@/lib/supabaseClient";
 
@@ -180,6 +182,21 @@ export default function PilgrimMobileApp() {
   const [navStarted, setNavStarted] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(["puri", "kedarnath"]);
 
+  // Night Mode Display State
+  const [isNightMode, setIsNightMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("yatra_night_mode");
+    if (saved === "true") {
+      setIsNightMode(true);
+    }
+  }, []);
+
+  const toggleNightMode = (enabled: boolean) => {
+    setIsNightMode(enabled);
+    localStorage.setItem("yatra_night_mode", enabled ? "true" : "false");
+  };
+
   // Supabase Authentication & Profile States
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [userSession, setUserSession] = useState<any>(null);
@@ -257,31 +274,45 @@ export default function PilgrimMobileApp() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-[#FAF8F2] via-[#F6F3EA] to-[#F1EDE2] text-slate-800 font-sans relative flex flex-col pb-28 selection:bg-yellow-300 selection:text-slate-900 overflow-x-hidden">
+    <div className={`w-full min-h-screen font-sans relative flex flex-col pb-28 selection:bg-yellow-300 selection:text-slate-900 overflow-x-hidden transition-colors duration-300 ${
+      isNightMode
+        ? "bg-[#0B0C0E] text-stone-100"
+        : "bg-gradient-to-b from-[#FAF8F2] via-[#F6F3EA] to-[#F1EDE2] text-slate-800"
+    }`}>
       
       {/* TOP HEADER BAR */}
-      <header className="px-4 pt-5 pb-3 sticky top-0 z-40 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
+      <header className={`px-4 pt-5 pb-3 sticky top-0 z-40 backdrop-blur-md transition-colors duration-300 ${
+        isNightMode
+          ? "bg-[#111318]/95 border-b border-amber-500/20 shadow-black/40"
+          : "bg-[#FAF8F2]/95 border-b border-stone-200/60 shadow-xs"
+      }`}>
         <div className="max-w-2xl mx-auto flex items-center justify-between w-full">
           {/* Leftmost Top: App Icon */}
           <button
             onClick={() => setActiveTab("home")}
-            className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-xs shrink-0 bg-amber-100 hover:scale-105 transition-transform"
+            className={`relative w-10 h-10 rounded-2xl overflow-hidden border shadow-xs shrink-0 hover:scale-105 transition-transform ${
+              isNightMode ? "border-amber-500/40 bg-amber-950/40" : "border-amber-300 bg-amber-100"
+            }`}
             title="Home"
           >
             <Image src="/app-icon.jpg" alt="App Icon" fill className="object-cover" priority />
           </button>
 
           {/* Center: Location Selector Pill */}
-          <div className="px-3.5 py-1.5 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center gap-1.5 max-w-[190px] sm:max-w-xs truncate">
+          <div className={`px-3.5 py-1.5 rounded-full border shadow-2xs flex items-center gap-1.5 max-w-[190px] sm:max-w-xs truncate transition-colors ${
+            isNightMode ? "bg-[#1A1D26] border-amber-500/30 text-amber-300" : "bg-white border-stone-200 text-slate-800"
+          }`}>
             <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-            <span className="text-[11px] font-bold text-slate-800 truncate">{activeTemple.name}</span>
+            <span className="text-[11px] font-bold truncate">{activeTemple.name}</span>
           </div>
 
-          {/* Right Top: Profile Icon (Symmetric w-10 h-10 rounded-2xl) */}
+          {/* Right Top: Profile Icon */}
           <button
             onClick={() => setIsProfileOpen(true)}
             title="User Profile & Auth"
-            className="w-10 h-10 rounded-2xl bg-slate-900 text-yellow-400 border border-slate-800 shadow-xs shrink-0 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all relative"
+            className={`w-10 h-10 rounded-2xl border shadow-xs shrink-0 flex items-center justify-center hover:scale-105 transition-all relative ${
+              isNightMode ? "bg-amber-500/20 text-yellow-400 border-amber-500/40 hover:bg-amber-500/30" : "bg-slate-900 text-yellow-400 border-slate-800 hover:bg-slate-800"
+            }`}
           >
             <User className="w-5 h-5 text-yellow-400" />
             {userSession && (
@@ -305,7 +336,11 @@ export default function PilgrimMobileApp() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search temples, locations, gates..."
-                className="w-full py-3.5 pl-11 pr-11 rounded-full bg-white border border-stone-200/80 text-xs font-medium text-slate-800 placeholder-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className={`w-full py-3.5 pl-11 pr-11 rounded-full text-xs font-medium shadow-sm focus:outline-none focus:ring-2 transition-colors ${
+                  isNightMode
+                    ? "bg-[#161922] border border-amber-500/25 text-stone-100 placeholder-stone-500 focus:ring-amber-500"
+                    : "bg-white border border-stone-200/80 text-slate-800 placeholder-stone-400 focus:ring-yellow-400"
+                }`}
               />
               <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
               {searchQuery ? (
@@ -316,12 +351,14 @@ export default function PilgrimMobileApp() {
                   <X className="w-4 h-4" />
                 </button>
               ) : (
-                <SlidersHorizontal className="w-4 h-4 text-slate-700 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" />
+                <SlidersHorizontal className={`w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer ${isNightMode ? "text-amber-400" : "text-slate-700"}`} />
               )}
             </div>
 
             {/* FEATURED TEMPLE COVER CARD */}
-            <div className="relative rounded-[32px] overflow-hidden bg-white border border-stone-200/60 shadow-xl shadow-stone-200/60 group">
+            <div className={`relative rounded-[32px] overflow-hidden border transition-colors group ${
+              isNightMode ? "bg-[#161922] border-amber-500/25 shadow-2xl shadow-black/80" : "bg-white border-stone-200/60 shadow-xl shadow-stone-200/60"
+            }`}>
               <div className="relative h-64 w-full">
                 <Image
                   src={activeTemple.image}
@@ -330,7 +367,7 @@ export default function PilgrimMobileApp() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   priority
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
 
                 {/* Top Badges */}
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10">
@@ -341,7 +378,7 @@ export default function PilgrimMobileApp() {
 
                   <button
                     onClick={() => toggleFavorite(activeTemple.id)}
-                    className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg"
+                    className="w-10 h-10 rounded-full bg-black/50 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg"
                   >
                     <Star
                       className={`w-5 h-5 ${
@@ -356,25 +393,31 @@ export default function PilgrimMobileApp() {
                   <span className="text-[10px] font-mono tracking-widest text-yellow-300 uppercase font-semibold">
                     {activeTemple.state}
                   </span>
-                  <h2 className="font-serif text-2xl font-bold leading-tight">{activeTemple.name}</h2>
+                  <h2 className="font-serif text-2xl font-bold leading-tight text-white">{activeTemple.name}</h2>
                 </div>
               </div>
 
               {/* Bottom White & Yellow Sheet */}
-              <div className="p-5 bg-gradient-to-b from-white to-[#FFFDF6] space-y-4">
-                <div className="flex items-center justify-between text-xs font-medium text-slate-600">
+              <div className={`p-5 space-y-4 transition-colors ${
+                isNightMode ? "bg-[#11131A] text-stone-200" : "bg-gradient-to-b from-white to-[#FFFDF6] text-slate-600"
+              }`}>
+                <div className={`flex items-center justify-between text-xs font-medium ${isNightMode ? "text-stone-300" : "text-slate-600"}`}>
                   <span className="flex items-center gap-1.5">
-                    <Clock className="w-4 h-4 text-amber-500" /> Wait: <strong>{activeTemple.waitTime}</strong>
+                    <Clock className="w-4 h-4 text-amber-500" /> Wait: <strong className={isNightMode ? "text-stone-100" : "text-slate-900"}>{activeTemple.waitTime}</strong>
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-emerald-500" /> Best: <strong className="text-emerald-700">{activeTemple.bestGate}</strong>
+                    <Zap className="w-4 h-4 text-emerald-400" /> Best: <strong className="text-emerald-400">{activeTemple.bestGate}</strong>
                   </span>
                 </div>
 
                 {/* Action Button */}
                 <button
                   onClick={runBestPathAlgorithm}
-                  className="w-full py-4 rounded-full bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] text-slate-950 font-bold text-xs uppercase tracking-wider hover:brightness-105 transition-all shadow-lg shadow-yellow-500/30 flex items-center justify-center gap-2 cursor-pointer"
+                  className={`w-full py-4 rounded-full font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    isNightMode
+                      ? "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-lg shadow-amber-500/20 hover:brightness-110"
+                      : "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] text-slate-950 shadow-lg shadow-yellow-500/30 hover:brightness-105"
+                  }`}
                 >
                   <Zap className="w-4 h-4 fill-slate-950" />
                   <span>FIND & NAVIGATE BEST PATH</span>
@@ -385,8 +428,8 @@ export default function PilgrimMobileApp() {
             {/* CATEGORY SELECTOR PILLS */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-serif text-lg font-bold text-slate-900">Select Destination</h3>
-                <span className="text-xs font-mono font-bold text-amber-700">
+                <h3 className={`font-serif text-lg font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>Select Destination</h3>
+                <span className={`text-xs font-mono font-bold ${isNightMode ? "text-amber-400" : "text-amber-700"}`}>
                   Showing {filteredDestinations.length} Locations
                 </span>
               </div>
@@ -398,8 +441,12 @@ export default function PilgrimMobileApp() {
                     onClick={() => setActiveCategory(cat.id)}
                     className={`px-4 py-2 rounded-full border text-xs font-bold whitespace-nowrap transition-all shadow-xs ${
                       activeCategory === cat.id
-                        ? "bg-slate-900 text-yellow-400 border-slate-900 shadow-md"
-                        : "bg-white text-slate-700 border-stone-200 hover:bg-stone-50"
+                        ? isNightMode
+                          ? "bg-amber-500/30 text-amber-300 border-amber-500/60 shadow-amber-500/10"
+                          : "bg-slate-900 text-yellow-400 border-slate-900 shadow-md"
+                        : isNightMode
+                          ? "bg-[#161922] text-stone-400 border-stone-800 hover:text-stone-200"
+                          : "bg-white text-slate-700 border-stone-200 hover:bg-stone-50"
                     }`}
                   >
                     {cat.label}
@@ -415,8 +462,10 @@ export default function PilgrimMobileApp() {
                   <div
                     key={dest.id}
                     onClick={() => setSelectedSite(dest.id as SupportedSite)}
-                    className={`relative rounded-3xl overflow-hidden bg-white border transition-all cursor-pointer shadow-md group ${
-                      selectedSite === dest.id ? "ring-2 ring-amber-400 border-amber-400" : "border-stone-200/80"
+                    className={`relative rounded-3xl overflow-hidden border transition-all cursor-pointer shadow-md group ${
+                      isNightMode ? "bg-[#161922] border-stone-800 hover:border-amber-500/40" : "bg-white border-stone-200/80"
+                    } ${
+                      selectedSite === dest.id ? "ring-2 ring-amber-400 border-amber-400" : ""
                     }`}
                   >
                     <div className="relative h-44 w-full">
@@ -434,7 +483,7 @@ export default function PilgrimMobileApp() {
                           e.stopPropagation();
                           toggleFavorite(dest.id);
                         }}
-                        className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white"
+                        className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white"
                       >
                         <Star
                           className={`w-4 h-4 ${
@@ -444,7 +493,7 @@ export default function PilgrimMobileApp() {
                       </button>
 
                       {/* Status Badge */}
-                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-[9px] font-bold text-white">
+                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[9px] font-bold text-white border border-white/10">
                         {dest.status.split(" ")[0]}
                       </span>
 
@@ -465,13 +514,15 @@ export default function PilgrimMobileApp() {
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center bg-white rounded-3xl border border-stone-200 space-y-2">
-                <Search className="w-8 h-8 text-stone-300 mx-auto" />
-                <h4 className="font-serif font-bold text-slate-800 text-base">No Temples Found</h4>
-                <p className="text-xs text-stone-500">No destination matching &quot;{searchQuery}&quot;.</p>
+              <div className={`p-8 text-center rounded-3xl border space-y-2 ${
+                isNightMode ? "bg-[#161922] border-stone-800 text-stone-300" : "bg-white border-stone-200"
+              }`}>
+                <Search className="w-8 h-8 text-stone-400 mx-auto" />
+                <h4 className={`font-serif font-bold text-base ${isNightMode ? "text-white" : "text-slate-800"}`}>No Temples Found</h4>
+                <p className="text-xs text-stone-400">No destination matching &quot;{searchQuery}&quot;.</p>
                 <button
                   onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}
-                  className="px-4 py-2 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mt-2"
+                  className="px-4 py-2 rounded-full bg-amber-500/20 text-yellow-300 text-xs font-bold mt-2 border border-amber-500/30"
                 >
                   Clear Search Filter
                 </button>
@@ -484,9 +535,9 @@ export default function PilgrimMobileApp() {
         {/* ================= TAB 2: EXPLORE ALL POPULAR DESTINATIONS ================= */}
         {activeTab === "explore" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-2">
-              <h2 className="font-serif text-xl font-bold text-slate-900">Popular Tourist Destinations</h2>
-              <span className="text-xs font-mono text-amber-600 font-bold">{filteredDestinations.length} Locations</span>
+            <div className={`flex items-center justify-between border-b pb-2 ${isNightMode ? "border-stone-800" : "border-stone-200"}`}>
+              <h2 className={`font-serif text-xl font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>Popular Tourist Destinations</h2>
+              <span className={`text-xs font-mono font-bold ${isNightMode ? "text-amber-400" : "text-amber-600"}`}>{filteredDestinations.length} Locations</span>
             </div>
 
             <div className="grid grid-cols-1 gap-4">
@@ -497,18 +548,20 @@ export default function PilgrimMobileApp() {
                     setSelectedSite(dest.id as SupportedSite);
                     setActiveTab("home");
                   }}
-                  className="relative rounded-3xl overflow-hidden bg-white border border-stone-200 shadow-lg flex items-center p-3 gap-3 cursor-pointer group"
+                  className={`relative rounded-3xl overflow-hidden border shadow-lg flex items-center p-3 gap-3 cursor-pointer group transition-colors ${
+                    isNightMode ? "bg-[#161922] border-stone-800 text-white" : "bg-white border-stone-200 text-slate-900"
+                  }`}
                 >
                   <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0">
                     <Image src={dest.image} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform" />
                   </div>
                   <div className="flex-1 space-y-1">
-                    <span className="text-[9px] font-mono text-amber-600 font-bold uppercase">{dest.state}</span>
-                    <h3 className="font-serif font-bold text-base text-slate-900 leading-tight">{dest.name}</h3>
-                    <div className="flex items-center gap-2 text-xs font-mono text-slate-600">
-                      <span>Wait: <strong className="text-slate-900">{dest.waitTime}</strong></span>
+                    <span className="text-[9px] font-mono text-amber-500 font-bold uppercase">{dest.state}</span>
+                    <h3 className={`font-serif font-bold text-base leading-tight ${isNightMode ? "text-white" : "text-slate-900"}`}>{dest.name}</h3>
+                    <div className={`flex items-center gap-2 text-xs font-mono ${isNightMode ? "text-stone-300" : "text-slate-600"}`}>
+                      <span>Wait: <strong className={isNightMode ? "text-yellow-300" : "text-slate-900"}>{dest.waitTime}</strong></span>
                       <span>•</span>
-                      <span className="text-emerald-600 font-bold">{dest.status}</span>
+                      <span className="text-emerald-400 font-bold">{dest.status}</span>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-stone-400 pr-1" />
@@ -522,34 +575,42 @@ export default function PilgrimMobileApp() {
         {activeTab === "route" && (
           <div className="space-y-5">
             {/* AIRLINE TICKET STYLE ROUTE CARD WITH EMBEDDED MAP */}
-            <div className="rounded-[32px] overflow-hidden bg-white border border-stone-200 shadow-xl space-y-0">
+            <div className={`rounded-[32px] overflow-hidden border shadow-xl space-y-0 transition-colors ${
+              isNightMode ? "bg-[#161922] border-amber-500/30 text-white" : "bg-white border-stone-200 text-slate-900"
+            }`}>
               {/* Header Green & Yellow Strip */}
-              <div className="p-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-300 text-slate-950 font-mono text-xs font-bold flex items-center justify-between">
+              <div className={`p-4 font-mono text-xs font-bold flex items-center justify-between ${
+                isNightMode
+                  ? "bg-amber-500/20 text-yellow-300 border-b border-amber-500/30"
+                  : "bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-300 text-slate-950"
+              }`}>
                 <span className="flex items-center gap-1.5 uppercase">
-                  <Sparkles className="w-4 h-4 fill-slate-950" /> OPTIMAL PATH CONFIRMED
+                  <Sparkles className="w-4 h-4 fill-current" /> OPTIMAL PATH CONFIRMED
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-slate-950 text-yellow-400 text-[10px] font-bold">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-950 text-yellow-400 text-[10px] font-bold border border-yellow-400/30">
                   SAVE 47 MINS
                 </span>
               </div>
 
               {/* Main Ticket Body */}
               <div className="p-4 space-y-4">
-                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div className={`flex items-center justify-between border-b pb-3 ${isNightMode ? "border-stone-800" : "border-stone-100"}`}>
                   <div>
                     <span className="text-[10px] font-mono text-stone-400 block uppercase">AVOID OVERCROWDED</span>
-                    <span className="text-sm font-serif font-bold text-red-600 line-through">Singhadwara Gate</span>
-                    <span className="text-xs font-mono text-stone-500 block">55 Mins Wait (340 PPL)</span>
+                    <span className="text-sm font-serif font-bold text-red-500 line-through">Singhadwara Gate</span>
+                    <span className="text-xs font-mono text-stone-400 block">55 Mins Wait (340 PPL)</span>
                   </div>
 
-                  <div className="w-8 h-8 rounded-full bg-stone-100 flex items-center justify-center text-slate-600 font-bold">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                    isNightMode ? "bg-stone-800 text-yellow-400" : "bg-stone-100 text-slate-600"
+                  }`}>
                     ➔
                   </div>
 
                   <div className="text-right">
-                    <span className="text-[10px] font-mono text-emerald-600 font-bold block uppercase">RECOMMENDED GATE</span>
-                    <span className="text-base font-serif font-bold text-slate-900">Ashwadwara Gate</span>
-                    <span className="text-xs font-mono text-emerald-600 font-bold block">Only 8 Mins Wait!</span>
+                    <span className="text-[10px] font-mono text-emerald-400 font-bold block uppercase">RECOMMENDED GATE</span>
+                    <span className={`text-base font-serif font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>Ashwadwara Gate</span>
+                    <span className="text-xs font-mono text-emerald-400 font-bold block">Only 8 Mins Wait!</span>
                   </div>
                 </div>
 
@@ -561,12 +622,17 @@ export default function PilgrimMobileApp() {
                   bestGateName={activeTemple.bestGate}
                   gateLat={activeTemple.gateLat}
                   gateLng={activeTemple.gateLng}
+                  isNightMode={isNightMode}
                 />
 
                 {/* Senior Citizen Facilities Card */}
-                <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs font-mono space-y-1 text-slate-700">
-                  <div className="font-bold text-amber-900 flex items-center gap-1.5">
-                    <Accessibility className="w-4 h-4 text-amber-600" /> Senior Citizen Facilities:
+                <div className={`p-3.5 rounded-2xl border text-xs font-mono space-y-1 ${
+                  isNightMode
+                    ? "bg-[#10131A] border-amber-500/20 text-stone-300"
+                    : "bg-amber-50/80 border-amber-200 text-slate-700"
+                }`}>
+                  <div className="font-bold text-amber-400 flex items-center gap-1.5">
+                    <Accessibility className="w-4 h-4 text-amber-500" /> Senior Citizen Facilities:
                   </div>
                   <div>• Wheelchair Ramp at Gate Entry</div>
                   <div>• Shaded Benches every 50m</div>
@@ -574,30 +640,34 @@ export default function PilgrimMobileApp() {
                 </div>
 
                 {/* Ticket Details Grid */}
-                <div className="grid grid-cols-3 gap-2 p-3 rounded-2xl bg-stone-50 text-xs font-mono text-center">
+                <div className={`grid grid-cols-3 gap-2 p-3 rounded-2xl text-xs font-mono text-center border ${
+                  isNightMode ? "bg-[#10131A] border-stone-800" : "bg-stone-50 border-stone-100"
+                }`}>
                   <div>
                     <span className="text-[9px] text-stone-400 block uppercase">GATE CODE</span>
-                    <span className="font-bold text-slate-900 text-sm">GATE B</span>
+                    <span className={`font-bold text-sm ${isNightMode ? "text-white" : "text-slate-900"}`}>GATE B</span>
                   </div>
                   <div>
                     <span className="text-[9px] text-stone-400 block uppercase">WAIT TIME</span>
-                    <span className="font-bold text-emerald-600 text-sm">8 MINS</span>
+                    <span className="font-bold text-emerald-400 text-sm">8 MINS</span>
                   </div>
                   <div>
                     <span className="text-[9px] text-stone-400 block uppercase">QUEUE LOAD</span>
-                    <span className="font-bold text-slate-900 text-sm">22% LOW</span>
+                    <span className={`font-bold text-sm ${isNightMode ? "text-amber-400" : "text-slate-900"}`}>22% LOW</span>
                   </div>
                 </div>
               </div>
 
               {/* Bottom Navigation Trigger */}
-              <div className="p-4 bg-stone-50 border-t border-stone-100">
+              <div className={`p-4 border-t ${isNightMode ? "bg-[#10131A] border-stone-800" : "bg-stone-50 border-stone-100"}`}>
                 <button
                   onClick={() => setNavStarted(!navStarted)}
                   className={`w-full py-4 rounded-full font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer ${
                     navStarted
                       ? "bg-emerald-600 text-white"
-                      : "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] text-slate-950"
+                      : isNightMode
+                        ? "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 shadow-amber-500/20"
+                        : "bg-gradient-to-r from-[#FACC15] via-[#EAB308] to-[#CA8A04] text-slate-950"
                   }`}
                 >
                   <Footprints className="w-4 h-4" />
@@ -611,21 +681,27 @@ export default function PilgrimMobileApp() {
         {/* ================= TAB 4: PASS ================= */}
         {activeTab === "pass" && (
           <div className="space-y-5">
-            <div className="p-6 rounded-[32px] bg-white border border-stone-200 text-center space-y-4 shadow-xl">
-              <span className="text-xs font-mono text-amber-600 font-bold uppercase tracking-widest block">
+            <div className={`p-6 rounded-[32px] border text-center space-y-4 shadow-xl transition-colors ${
+              isNightMode ? "bg-[#161922] border-amber-500/30 text-white" : "bg-white border-stone-200 text-slate-900"
+            }`}>
+              <span className="text-xs font-mono text-amber-500 font-bold uppercase tracking-widest block">
                 SHREE MANDIRA DIGITAL QR PASS
               </span>
 
-              <div className="w-48 h-48 mx-auto bg-stone-50 p-4 rounded-3xl border-2 border-stone-200 flex items-center justify-center shadow-inner">
-                <QrCode className="w-full h-full text-slate-800" />
+              <div className={`w-48 h-48 mx-auto p-4 rounded-3xl border-2 flex items-center justify-center shadow-inner ${
+                isNightMode ? "bg-[#0E1017] border-amber-500/30" : "bg-stone-50 border-stone-200"
+              }`}>
+                <QrCode className={`w-full h-full ${isNightMode ? "text-amber-400" : "text-slate-800"}`} />
               </div>
 
               <div>
-                <h3 className="text-lg font-serif font-bold text-slate-900">Pass ID: #PUR-2026-9842</h3>
-                <span className="text-xs font-mono text-emerald-600 font-bold block">VALID FOR GATE B (ASHWADWARA)</span>
+                <h3 className={`text-lg font-serif font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>Pass ID: #PUR-2026-9842</h3>
+                <span className="text-xs font-mono text-emerald-400 font-bold block">VALID FOR GATE B (ASHWADWARA)</span>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-amber-50/60 border border-amber-200 text-xs font-mono text-slate-700 text-left space-y-1">
+              <div className={`p-3.5 rounded-2xl border text-xs font-mono text-left space-y-1 ${
+                isNightMode ? "bg-[#10131A] border-stone-800 text-stone-300" : "bg-amber-50/60 border-amber-200 text-slate-700"
+              }`}>
                 <div>Pilgrim: Senior Citizen / Family</div>
                 <div>Time Slot: 10:30 AM - 11:30 AM</div>
                 <div>Status: Priority Fast-Track Entry Granted ✓</div>
@@ -637,14 +713,20 @@ export default function PilgrimMobileApp() {
       </main>
 
       {/* FLOATING BOTTOM NAVIGATION BAR */}
-      <nav className="fixed bottom-4 left-4 right-4 max-w-sm mx-auto z-50 bg-white/95 backdrop-blur-xl border border-stone-200/80 rounded-full px-3 py-2 shadow-2xl shadow-stone-900/15">
+      <nav className={`fixed bottom-4 left-4 right-4 max-w-md mx-auto z-50 backdrop-blur-xl border rounded-full px-3 py-2 transition-all ${
+        isNightMode
+          ? "bg-[#111318]/95 border-amber-500/30 shadow-2xl shadow-black/80"
+          : "bg-white/95 border-stone-200/80 shadow-2xl shadow-stone-900/15"
+      }`}>
         <div className="grid grid-cols-4 gap-1 text-center">
           
           {/* 1. Home */}
           <button
             onClick={() => setActiveTab("home")}
             className={`flex flex-col items-center justify-center py-1.5 rounded-full transition-all ${
-              activeTab === "home" ? "text-slate-950 font-bold bg-amber-300/40" : "text-stone-400 hover:text-slate-700"
+              activeTab === "home"
+                ? isNightMode ? "text-amber-300 font-bold bg-amber-500/25 border border-amber-500/30" : "text-slate-950 font-bold bg-amber-300/40"
+                : isNightMode ? "text-stone-400 hover:text-stone-200" : "text-stone-400 hover:text-slate-700"
             }`}
           >
             <Home className="w-5 h-5" />
@@ -655,7 +737,9 @@ export default function PilgrimMobileApp() {
           <button
             onClick={() => setActiveTab("explore")}
             className={`flex flex-col items-center justify-center py-1.5 rounded-full transition-all ${
-              activeTab === "explore" ? "text-slate-950 font-bold bg-amber-300/40" : "text-stone-400 hover:text-slate-700"
+              activeTab === "explore"
+                ? isNightMode ? "text-amber-300 font-bold bg-amber-500/25 border border-amber-500/30" : "text-slate-950 font-bold bg-amber-300/40"
+                : isNightMode ? "text-stone-400 hover:text-stone-200" : "text-stone-400 hover:text-slate-700"
             }`}
           >
             <Compass className="w-5 h-5" />
@@ -666,7 +750,7 @@ export default function PilgrimMobileApp() {
           <button
             onClick={runBestPathAlgorithm}
             className={`flex flex-col items-center justify-center py-1.5 rounded-full transition-all ${
-              activeTab === "route" ? "text-slate-950 font-bold bg-amber-400" : "text-slate-900"
+              activeTab === "route" ? "text-slate-950 font-bold bg-amber-400" : isNightMode ? "text-amber-300" : "text-slate-900"
             }`}
           >
             <div className="w-7 h-7 rounded-full bg-gradient-to-r from-yellow-400 to-amber-400 text-slate-950 flex items-center justify-center shadow-md font-bold">
@@ -679,7 +763,9 @@ export default function PilgrimMobileApp() {
           <button
             onClick={() => setActiveTab("pass")}
             className={`flex flex-col items-center justify-center py-1.5 rounded-full transition-all ${
-              activeTab === "pass" ? "text-slate-950 font-bold bg-amber-300/40" : "text-stone-400 hover:text-slate-700"
+              activeTab === "pass"
+                ? isNightMode ? "text-amber-300 font-bold bg-amber-500/25 border border-amber-500/30" : "text-slate-950 font-bold bg-amber-300/40"
+                : isNightMode ? "text-stone-400 hover:text-stone-200" : "text-stone-400 hover:text-slate-700"
             }`}
           >
             <QrCode className="w-5 h-5" />
@@ -691,49 +777,106 @@ export default function PilgrimMobileApp() {
 
       {/* PROFILE MODAL */}
       {isProfileOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl border border-stone-200 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-md rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl border p-6 space-y-5 max-h-[90vh] overflow-y-auto transition-colors ${
+            isNightMode ? "bg-[#161922] border-amber-500/30 text-white" : "bg-white border-stone-200 text-slate-900"
+          }`}>
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+            <div className={`flex items-center justify-between border-b pb-3 ${isNightMode ? "border-stone-800" : "border-stone-100"}`}>
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 font-bold shadow-xs">
+                <div className={`w-10 h-10 rounded-2xl border flex items-center justify-center font-bold shadow-xs ${
+                  isNightMode ? "bg-amber-500/20 text-yellow-400 border-amber-500/40" : "bg-amber-100 text-amber-700 border-amber-300"
+                }`}>
                   <User className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-serif font-bold text-lg text-slate-900">Pilgrim Profile</h3>
-                  <span className="text-[10px] font-mono text-stone-500 uppercase">Direct Google Auth</span>
+                  <h3 className={`font-serif font-bold text-lg ${isNightMode ? "text-white" : "text-slate-900"}`}>Pilgrim Profile</h3>
+                  <span className="text-[10px] font-mono text-stone-400 uppercase">Direct Google Auth</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsProfileOpen(false)}
-                className="w-8 h-8 rounded-full bg-stone-100 text-stone-500 hover:text-slate-900 flex items-center justify-center transition-colors"
+                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                  isNightMode ? "bg-stone-800 text-stone-400 hover:text-white" : "bg-stone-100 text-stone-500 hover:text-slate-900"
+                }`}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
+            {/* THEME MODE TOGGLE SWITCH (NIGHT MODE / LIGHT MODE) */}
+            <div className={`p-3.5 rounded-2xl border flex items-center justify-between transition-all ${
+              isNightMode
+                ? "bg-[#10131A] border-amber-500/30 text-stone-200"
+                : "bg-amber-50/70 border-amber-200/80 text-slate-800"
+            }`}>
+              <div className="flex items-center gap-2.5">
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                  isNightMode ? "bg-amber-500/20 text-yellow-400" : "bg-amber-100 text-amber-800"
+                }`}>
+                  {isNightMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                </div>
+                <div>
+                  <h4 className={`text-xs font-bold font-serif ${isNightMode ? "text-white" : "text-slate-900"}`}>
+                    {isNightMode ? "Night Mode" : "Light Mode"}
+                  </h4>
+                  <span className="text-[10px] font-mono text-stone-400 block">Appearance theme</span>
+                </div>
+              </div>
+
+              <div className={`flex items-center gap-1 p-1 rounded-xl border ${
+                isNightMode ? "bg-[#1A1D26] border-stone-800" : "bg-white border-stone-200"
+              }`}>
+                <button
+                  onClick={() => toggleNightMode(false)}
+                  className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all ${
+                    !isNightMode
+                      ? "bg-amber-400 text-slate-950 shadow-xs"
+                      : "text-stone-400 hover:text-stone-200"
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5" /> Light
+                </button>
+
+                <button
+                  onClick={() => toggleNightMode(true)}
+                  className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 transition-all ${
+                    isNightMode
+                      ? "bg-amber-500 text-slate-950 shadow-xs font-bold"
+                      : "text-stone-400 hover:text-stone-200"
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5" /> Night
+                </button>
+              </div>
+            </div>
+
             {/* Auth Content */}
             {userSession ? (
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 space-y-2">
+                <div className={`p-4 rounded-2xl border space-y-2 ${
+                  isNightMode ? "bg-[#10131A] border-amber-500/30" : "bg-amber-50/70 border-amber-200/80"
+                }`}>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono text-amber-800 font-bold uppercase">Active Session</span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-1">
+                    <span className="text-xs font-mono text-amber-400 font-bold uppercase">Active Session</span>
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" /> Authenticated
                     </span>
                   </div>
-                  <div className="text-sm font-bold text-slate-900 truncate">
+                  <div className={`text-sm font-bold truncate ${isNightMode ? "text-white" : "text-slate-900"}`}>
                     {userSession.user.email}
                   </div>
-                  <div className="text-[11px] font-mono text-stone-500">
-                    User ID: <span className="text-slate-700 font-semibold">{userSession.user.id.slice(0, 12)}...</span>
+                  <div className="text-[11px] font-mono text-stone-400">
+                    User ID: <span className={isNightMode ? "text-amber-300" : "text-slate-700 font-semibold"}>{userSession.user.id.slice(0, 12)}...</span>
                   </div>
                 </div>
 
-                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs font-mono space-y-1 text-slate-700">
-                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-amber-600" /> Pilgrim Benefits Active:
+                <div className={`p-3.5 rounded-2xl border text-xs font-mono space-y-1 ${
+                  isNightMode ? "bg-[#10131A] border-stone-800 text-stone-300" : "bg-stone-50 border-stone-200 text-slate-700"
+                }`}>
+                  <div className="font-bold flex items-center gap-1.5 text-amber-400">
+                    <ShieldCheck className="w-4 h-4 text-amber-500" /> Pilgrim Benefits Active:
                   </div>
                   <div>• Senior Citizen Fast-Track Queue Pass</div>
                   <div>• Real-time Crowd Surge Alerts</div>
@@ -743,7 +886,7 @@ export default function PilgrimMobileApp() {
                 <button
                   onClick={handleSignOut}
                   disabled={authLoading}
-                  className="w-full py-3.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{authLoading ? "Signing Out..." : "Sign Out"}</span>
@@ -752,14 +895,14 @@ export default function PilgrimMobileApp() {
             ) : (
               <div className="space-y-5 text-center py-2">
                 <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-base text-slate-900">Sign In to YatraFlow</h4>
-                  <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                  <h4 className={`font-serif font-bold text-base ${isNightMode ? "text-white" : "text-slate-900"}`}>Sign In to YatraFlow</h4>
+                  <p className="text-xs text-stone-400 max-w-xs mx-auto">
                     Authenticate directly using your Google Account to manage live passes and navigation.
                   </p>
                 </div>
 
                 {authError && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium text-left">
+                  <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-medium text-left">
                     {authError}
                   </div>
                 )}
@@ -768,7 +911,11 @@ export default function PilgrimMobileApp() {
                 <button
                   onClick={handleGoogleLogin}
                   disabled={authLoading}
-                  className="w-full py-4 rounded-2xl bg-white border-2 border-stone-200 hover:border-amber-400 hover:bg-amber-50/50 text-slate-900 font-bold text-sm transition-all flex items-center justify-center gap-3 shadow-md group cursor-pointer"
+                  className={`w-full py-4 rounded-2xl border-2 font-bold text-sm transition-all flex items-center justify-center gap-3 shadow-md group cursor-pointer ${
+                    isNightMode
+                      ? "bg-[#10131A] border-stone-700 hover:border-amber-400 text-white"
+                      : "bg-white border-stone-200 hover:border-amber-400 hover:bg-amber-50/50 text-slate-900"
+                  }`}
                 >
                   <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
