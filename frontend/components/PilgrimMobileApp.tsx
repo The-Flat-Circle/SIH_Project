@@ -516,20 +516,10 @@ export default function PilgrimMobileApp() {
           </div>
         )}
 
-        {/* ================= TAB 3: ROUTE (INTERACTIVE REAL-TIME MAP NAVIGATION) ================= */}
+        {/* ================= TAB 3: ROUTE (AIRLINE TICKET STYLE WITH EMBEDDED MAP) ================= */}
         {activeTab === "route" && (
           <div className="space-y-5">
-            {/* LIVE INTERACTIVE LEAFLET / OPENSTREETMAP REAL-TIME NAVIGATION MAP */}
-            <LiveNavigationMap
-              templeName={activeTemple.name}
-              destLat={activeTemple.lat}
-              destLng={activeTemple.lng}
-              bestGateName={activeTemple.bestGate}
-              gateLat={activeTemple.gateLat}
-              gateLng={activeTemple.gateLng}
-            />
-
-            {/* AIRLINE TICKET STYLE ROUTE CARD */}
+            {/* AIRLINE TICKET STYLE ROUTE CARD WITH EMBEDDED MAP */}
             <div className="rounded-[32px] overflow-hidden bg-white border border-stone-200 shadow-xl space-y-0">
               {/* Header Green & Yellow Strip */}
               <div className="p-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-300 text-slate-950 font-mono text-xs font-bold flex items-center justify-between">
@@ -542,7 +532,7 @@ export default function PilgrimMobileApp() {
               </div>
 
               {/* Main Ticket Body */}
-              <div className="p-5 space-y-4">
+              <div className="p-4 space-y-4">
                 <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                   <div>
                     <span className="text-[10px] font-mono text-stone-400 block uppercase">AVOID OVERCROWDED</span>
@@ -560,6 +550,16 @@ export default function PilgrimMobileApp() {
                     <span className="text-xs font-mono text-emerald-600 font-bold block">Only 8 Mins Wait!</span>
                   </div>
                 </div>
+
+                {/* LIVE INTERACTIVE MAP EMBEDDED DIRECTLY INSIDE TICKET CARD */}
+                <LiveNavigationMap
+                  templeName={activeTemple.name}
+                  destLat={activeTemple.lat}
+                  destLng={activeTemple.lng}
+                  bestGateName={activeTemple.bestGate}
+                  gateLat={activeTemple.gateLat}
+                  gateLng={activeTemple.gateLng}
+                />
 
                 {/* Senior Citizen Facilities Card */}
                 <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs font-mono space-y-1 text-slate-700">
