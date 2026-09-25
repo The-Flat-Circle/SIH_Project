@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Home,
   Compass,
@@ -22,9 +23,21 @@ import {
   LogOut,
   CheckCircle2,
   X,
-  ShieldCheck
+  ShieldCheck,
+  Navigation,
+  ExternalLink
 } from "lucide-react";
 import { supabase, signInWithGoogle } from "@/lib/supabaseClient";
+
+const LiveNavigationMap = dynamic(() => import("./LiveNavigationMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-72 rounded-3xl bg-stone-100 border border-stone-200 flex flex-col items-center justify-center text-stone-500 font-mono text-xs gap-2 shadow-inner">
+      <div className="w-6 h-6 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+      <span>Loading Interactive Live Map...</span>
+    </div>
+  ),
+});
 
 export type SupportedSite = "puri" | "vaishnodevi" | "tirupati" | "varanasi" | "kedarnath" | "siddhivinayak";
 
@@ -40,6 +53,10 @@ interface Destination {
   rating: string;
   category: "surge" | "moderate" | "offpeak";
   hasSeniorAccess: boolean;
+  lat: number;
+  lng: number;
+  gateLat: number;
+  gateLng: number;
 }
 
 const DESTINATIONS: Destination[] = [
@@ -55,6 +72,10 @@ const DESTINATIONS: Destination[] = [
     rating: "4.9",
     category: "surge",
     hasSeniorAccess: true,
+    lat: 19.8134,
+    lng: 85.8180,
+    gateLat: 19.8131,
+    gateLng: 85.8174,
   },
   {
     id: "vaishnodevi",
@@ -68,6 +89,10 @@ const DESTINATIONS: Destination[] = [
     rating: "4.9",
     category: "surge",
     hasSeniorAccess: false,
+    lat: 33.0308,
+    lng: 74.9490,
+    gateLat: 33.0312,
+    gateLng: 74.9495,
   },
   {
     id: "tirupati",
@@ -81,6 +106,10 @@ const DESTINATIONS: Destination[] = [
     rating: "4.8",
     category: "moderate",
     hasSeniorAccess: true,
+    lat: 13.6833,
+    lng: 79.3472,
+    gateLat: 13.6836,
+    gateLng: 79.3475,
   },
   {
     id: "varanasi",
@@ -94,6 +123,10 @@ const DESTINATIONS: Destination[] = [
     rating: "4.9",
     category: "offpeak",
     hasSeniorAccess: true,
+    lat: 25.3109,
+    lng: 83.0107,
+    gateLat: 25.3112,
+    gateLng: 83.0112,
   },
   {
     id: "kedarnath",
@@ -107,6 +140,10 @@ const DESTINATIONS: Destination[] = [
     rating: "5.0",
     category: "offpeak",
     hasSeniorAccess: true,
+    lat: 30.7346,
+    lng: 79.0669,
+    gateLat: 30.7348,
+    gateLng: 79.0672,
   },
   {
     id: "siddhivinayak",
@@ -120,6 +157,10 @@ const DESTINATIONS: Destination[] = [
     rating: "4.8",
     category: "surge",
     hasSeniorAccess: false,
+    lat: 19.0169,
+    lng: 72.8304,
+    gateLat: 19.0172,
+    gateLng: 72.8308,
   },
 ];
 
@@ -137,7 +178,6 @@ export default function PilgrimMobileApp() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [navStarted, setNavStarted] = useState<boolean>(false);
-  const [voiceActive, setVoiceActive] = useState<boolean>(false);
   const [favorites, setFavorites] = useState<string[]>(["puri", "kedarnath"]);
 
   // Supabase Authentication & Profile States
@@ -147,12 +187,10 @@ export default function PilgrimMobileApp() {
   const [authError, setAuthError] = useState<string>("");
 
   useEffect(() => {
-    // Check initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUserSession(session);
     });
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserSession(session);
     });
@@ -162,9 +200,7 @@ export default function PilgrimMobileApp() {
 
   const activeTemple = DESTINATIONS.find((d) => d.id === selectedSite) || DESTINATIONS[0];
 
-  // Dynamic Filtering for Search Query + Category Filter
   const filteredDestinations = DESTINATIONS.filter((d) => {
-    // Category match
     let matchesCategory = true;
     if (activeCategory === "surge") {
       matchesCategory = d.status.includes("Surge") || d.status.includes("Critical") || d.category === "surge";
@@ -174,7 +210,6 @@ export default function PilgrimMobileApp() {
       matchesCategory = d.status.includes("Low") || d.status.includes("Normal") || d.category === "offpeak";
     }
 
-    // Search query match
     let matchesSearch = true;
     if (searchQuery.trim() !== "") {
       const q = searchQuery.toLowerCase().trim();
@@ -226,10 +261,10 @@ export default function PilgrimMobileApp() {
       
       {/* TOP HEADER BAR */}
       <header className="px-4 pt-5 pb-3 flex items-center justify-between sticky top-0 z-40 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
-        {/* Leftmost Top: Only App Icon Image (No YatraFlow text) */}
+        {/* Leftmost Top: App Icon */}
         <button
           onClick={() => setActiveTab("home")}
-          className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-sm shrink-0 bg-amber-100 hover:scale-105 transition-transform"
+          className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-xs shrink-0 bg-amber-100 hover:scale-105 transition-transform"
           title="Home"
         >
           <Image src="/app-icon.jpg" alt="App Icon" fill className="object-cover" priority />
@@ -481,9 +516,20 @@ export default function PilgrimMobileApp() {
           </div>
         )}
 
-        {/* ================= TAB 3: ROUTE (AIRLINE TICKET STYLE) ================= */}
+        {/* ================= TAB 3: ROUTE (INTERACTIVE REAL-TIME MAP NAVIGATION) ================= */}
         {activeTab === "route" && (
           <div className="space-y-5">
+            {/* LIVE INTERACTIVE LEAFLET / OPENSTREETMAP REAL-TIME NAVIGATION MAP */}
+            <LiveNavigationMap
+              templeName={activeTemple.name}
+              destLat={activeTemple.lat}
+              destLng={activeTemple.lng}
+              bestGateName={activeTemple.bestGate}
+              gateLat={activeTemple.gateLat}
+              gateLng={activeTemple.gateLng}
+            />
+
+            {/* AIRLINE TICKET STYLE ROUTE CARD */}
             <div className="rounded-[32px] overflow-hidden bg-white border border-stone-200 shadow-xl space-y-0">
               {/* Header Green & Yellow Strip */}
               <div className="p-4 bg-gradient-to-r from-amber-400 via-yellow-400 to-yellow-300 text-slate-950 font-mono text-xs font-bold flex items-center justify-between">
@@ -553,35 +599,8 @@ export default function PilgrimMobileApp() {
                   }`}
                 >
                   <Footprints className="w-4 h-4" />
-                  <span>{navStarted ? "LIVE NAVIGATION ACTIVE (TAP TO STOP)" : "START TURN-BY-TURN NAVIGATION"}</span>
+                  <span>{navStarted ? "LIVE GPS TRACKING ACTIVE" : "START TURN-BY-TURN NAVIGATION"}</span>
                 </button>
-              </div>
-            </div>
-
-            {/* STEP BY STEP DIRECTIONS */}
-            <div className="space-y-2">
-              <h3 className="font-serif text-base font-bold text-slate-900">Walking Steps</h3>
-
-              <div className="space-y-2 text-xs font-mono">
-                <div className="p-3.5 rounded-2xl bg-white border border-stone-200/80 flex items-center gap-3 shadow-sm">
-                  <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-950 font-bold flex items-center justify-center shrink-0">
-                    1
-                  </div>
-                  <div>
-                    <span className="text-slate-900 font-bold block">Walk straight 120m</span>
-                    <span className="text-stone-500">Pass Aruna Stambha Sun Pillar on your left.</span>
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-white border border-stone-200/80 flex items-center gap-3 shadow-sm">
-                  <div className="w-7 h-7 rounded-full bg-amber-400 text-slate-950 font-bold flex items-center justify-center shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <span className="text-slate-900 font-bold block">Turn Right at Ashwadwara Sign</span>
-                    <span className="text-stone-500">Wheelchair ramp & resting benches available.</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -668,7 +687,7 @@ export default function PilgrimMobileApp() {
         </div>
       </nav>
 
-      {/* PROFILE MODAL (DIRECT GOOGLE AUTH ONLY) */}
+      {/* PROFILE MODAL */}
       {isProfileOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl border border-stone-200 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
