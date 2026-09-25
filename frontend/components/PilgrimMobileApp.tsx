@@ -51,6 +51,9 @@ interface Destination {
   badgeType: string;
   waitTime: string;
   bestGate: string;
+  avoidGate: string;
+  avoidWait: string;
+  navMapImage: string;
   image: string;
   rating: string;
   category: "surge" | "moderate" | "offpeak";
@@ -59,6 +62,7 @@ interface Destination {
   lng: number;
   gateLat: number;
   gateLng: number;
+  pathSteps: string[];
 }
 
 const DESTINATIONS: Destination[] = [
@@ -69,7 +73,10 @@ const DESTINATIONS: Destination[] = [
     status: "85% High Surge",
     badgeType: "surge",
     waitTime: "55 Mins",
-    bestGate: "Ashwadwara (8 Mins)",
+    bestGate: "Ashwadwara Gate B (8 Mins)",
+    avoidGate: "Singhadwara Gate (East)",
+    avoidWait: "55 Mins (340 PPL)",
+    navMapImage: "/nav_maps/jagannathtempnav.jpeg",
     image: "/puri_jagannath.jpg",
     rating: "4.9",
     category: "surge",
@@ -78,6 +85,11 @@ const DESTINATIONS: Destination[] = [
     lng: 85.8180,
     gateLat: 19.8131,
     gateLng: 85.8174,
+    pathSteps: [
+      "Pass Aruna Stambha (Sun Pillar) on your left",
+      "Proceed through Bada Danda (Grand Road) bypass corridor",
+      "Enter via Ashwadwara Gate B (Priority Fast-Track)"
+    ]
   },
   {
     id: "vaishnodevi",
@@ -86,7 +98,10 @@ const DESTINATIONS: Destination[] = [
     status: "92% Critical",
     badgeType: "surge",
     waitTime: "75 Mins",
-    bestGate: "Bhairon Ropeway (10 Mins)",
+    bestGate: "Bhairon Ropeway Gate B (10 Mins)",
+    avoidGate: "Bhavan Main Darshan Queue",
+    avoidWait: "75 Mins (520 PPL)",
+    navMapImage: "/nav_maps/matavaishnodevinav.jpeg",
     image: "/vaishno_devi.jpg",
     rating: "4.9",
     category: "surge",
@@ -95,6 +110,11 @@ const DESTINATIONS: Destination[] = [
     lng: 74.9490,
     gateLat: 33.0312,
     gateLng: 74.9495,
+    pathSteps: [
+      "Take Sanjichhat bypass route toward Bhairon Ghati",
+      "Follow shaded mountain corridor path",
+      "Enter via Bhairon Ropeway Gate B (Fast-Track Entry)"
+    ]
   },
   {
     id: "tirupati",
@@ -103,7 +123,10 @@ const DESTINATIONS: Destination[] = [
     status: "78% Moderate",
     badgeType: "moderate",
     waitTime: "40 Mins",
-    bestGate: "Sampangi Pradakshinam (12 Mins)",
+    bestGate: "Supadam Gate B (12 Mins)",
+    avoidGate: "Vaikuntam Queue Complex 1",
+    avoidWait: "90 Mins (680 PPL)",
+    navMapImage: "/nav_maps/tirupatibalajinav.jpeg",
     image: "/tirupati_balaji.jpg",
     rating: "4.8",
     category: "moderate",
@@ -112,6 +135,11 @@ const DESTINATIONS: Destination[] = [
     lng: 79.3472,
     gateLat: 13.6836,
     gateLng: 79.3475,
+    pathSteps: [
+      "Head right past Akhilandam coconut breaking area",
+      "Walk along North Mada Street corridor",
+      "Enter via Supadam Special Queue Gate B"
+    ]
   },
   {
     id: "varanasi",
@@ -120,7 +148,10 @@ const DESTINATIONS: Destination[] = [
     status: "65% Normal",
     badgeType: "normal",
     waitTime: "20 Mins",
-    bestGate: "Ganga Corridor (5 Mins)",
+    bestGate: "Dhundhiraj Gali Gate 3 (7 Mins)",
+    avoidGate: "Ganges Ghat Main Gate 1",
+    avoidWait: "60 Mins (410 PPL)",
+    navMapImage: "/nav_maps/kashivishwanathtemp.jpeg",
     image: "/kashi_vishwanath.jpg",
     rating: "4.9",
     category: "offpeak",
@@ -129,6 +160,11 @@ const DESTINATIONS: Destination[] = [
     lng: 83.0107,
     gateLat: 25.3112,
     gateLng: 83.0112,
+    pathSteps: [
+      "Bypass main River Ghat crowd at Chowk Crossing",
+      "Enter through Dhundhiraj Gali heritage corridor",
+      "Enter via Vishwanath Corridor Gate 3"
+    ]
   },
   {
     id: "kedarnath",
@@ -137,7 +173,10 @@ const DESTINATIONS: Destination[] = [
     status: "40% Low Load",
     badgeType: "low",
     waitTime: "10 Mins",
-    bestGate: "Main Mandap (5 Mins)",
+    bestGate: "Bhairavnath Path Gate 2 (9 Mins)",
+    avoidGate: "Mandir Sangam Main Gate",
+    avoidWait: "80 Mins (490 PPL)",
+    navMapImage: "/nav_maps/kedarnathtemp.jpeg",
     image: "/kedarnath.avif",
     rating: "5.0",
     category: "offpeak",
@@ -146,6 +185,11 @@ const DESTINATIONS: Destination[] = [
     lng: 79.0669,
     gateLat: 30.7348,
     gateLng: 79.0672,
+    pathSteps: [
+      "Turn left at Helipad bypass point",
+      "Walk along Mandakini riverbank walkway",
+      "Enter via Bhairavnath VIP Entry Gate 2"
+    ]
   },
   {
     id: "siddhivinayak",
@@ -154,7 +198,10 @@ const DESTINATIONS: Destination[] = [
     status: "88% High Surge",
     badgeType: "surge",
     waitTime: "45 Mins",
-    bestGate: "Prabhadevi Bypass (8 Mins)",
+    bestGate: "Prabhadevi Gate 2 (8 Mins)",
+    avoidGate: "SK Bole Road Main Gate 1",
+    avoidWait: "45 Mins (310 PPL)",
+    navMapImage: "/nav_maps/siddhivinayaktemp.jpeg",
     image: "/siddhivinayak.jpg",
     rating: "4.8",
     category: "surge",
@@ -163,7 +210,12 @@ const DESTINATIONS: Destination[] = [
     lng: 72.8304,
     gateLat: 19.0172,
     gateLng: 72.8308,
-  },
+    pathSteps: [
+      "Walk past Prabhadevi Corner landmark",
+      "Follow Kakasaheb Gadgil Marg fast lane",
+      "Enter via Gate 2 (Senior / Fast-Track Gate)"
+    ]
+  }
 ];
 
 const CATEGORY_TABS = [
@@ -597,8 +649,8 @@ export default function PilgrimMobileApp() {
                 <div className={`flex items-center justify-between border-b pb-3 ${isNightMode ? "border-stone-800" : "border-stone-100"}`}>
                   <div>
                     <span className="text-[10px] font-mono text-stone-400 block uppercase">AVOID OVERCROWDED</span>
-                    <span className="text-sm font-serif font-bold text-red-500 line-through">Singhadwara Gate</span>
-                    <span className="text-xs font-mono text-stone-400 block">55 Mins Wait (340 PPL)</span>
+                    <span className="text-sm font-serif font-bold text-red-500 line-through">{activeTemple.avoidGate}</span>
+                    <span className="text-xs font-mono text-stone-400 block">{activeTemple.avoidWait}</span>
                   </div>
 
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
@@ -609,8 +661,8 @@ export default function PilgrimMobileApp() {
 
                   <div className="text-right">
                     <span className="text-[10px] font-mono text-emerald-400 font-bold block uppercase">RECOMMENDED GATE</span>
-                    <span className={`text-base font-serif font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>Ashwadwara Gate</span>
-                    <span className="text-xs font-mono text-emerald-400 font-bold block">Only 8 Mins Wait!</span>
+                    <span className={`text-base font-serif font-bold ${isNightMode ? "text-white" : "text-slate-900"}`}>{activeTemple.bestGate}</span>
+                    <span className="text-xs font-mono text-emerald-400 font-bold block">Priority Entry Active ✓</span>
                   </div>
                 </div>
 
@@ -622,21 +674,32 @@ export default function PilgrimMobileApp() {
                   bestGateName={activeTemple.bestGate}
                   gateLat={activeTemple.gateLat}
                   gateLng={activeTemple.gateLng}
+                  navMapImage={activeTemple.navMapImage}
                   isNightMode={isNightMode}
                 />
 
-                {/* Senior Citizen Facilities Card */}
-                <div className={`p-3.5 rounded-2xl border text-xs font-mono space-y-1 ${
+                {/* CONCISE TEMPLE TURN-BY-TURN PATH DETAILS */}
+                <div className={`p-3.5 rounded-2xl border text-xs font-mono space-y-2 ${
                   isNightMode
-                    ? "bg-[#10131A] border-amber-500/20 text-stone-300"
-                    : "bg-amber-50/80 border-amber-200 text-slate-700"
+                    ? "bg-[#10131A] border-amber-500/20 text-stone-200"
+                    : "bg-amber-50/70 border-amber-200 text-slate-800"
                 }`}>
-                  <div className="font-bold text-amber-400 flex items-center gap-1.5">
-                    <Accessibility className="w-4 h-4 text-amber-500" /> Senior Citizen Facilities:
+                  <div className="font-bold text-amber-500 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                      <Footprints className="w-3.5 h-3.5 text-amber-500" /> Shortest Walking Path
+                    </span>
+                    <span className="text-[10px] text-emerald-400 font-bold">Fastest Route</span>
                   </div>
-                  <div>• Wheelchair Ramp at Gate Entry</div>
-                  <div>• Shaded Benches every 50m</div>
-                  <div>• Cold Drinking Water Station</div>
+                  <div className="space-y-1.5 text-[11px]">
+                    {activeTemple.pathSteps.map((step, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="w-4 h-4 rounded-full bg-amber-400 text-slate-950 font-bold text-[9px] flex items-center justify-center shrink-0 mt-0.5">
+                          {idx + 1}
+                        </span>
+                        <span className="leading-snug">{step}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Ticket Details Grid */}
@@ -649,7 +712,7 @@ export default function PilgrimMobileApp() {
                   </div>
                   <div>
                     <span className="text-[9px] text-stone-400 block uppercase">WAIT TIME</span>
-                    <span className="font-bold text-emerald-400 text-sm">8 MINS</span>
+                    <span className="font-bold text-emerald-400 text-sm">{activeTemple.bestGate.match(/\(\d+ Mins\)/)?.[0] || "8 MINS"}</span>
                   </div>
                   <div>
                     <span className="text-[9px] text-stone-400 block uppercase">QUEUE LOAD</span>
