@@ -16,6 +16,12 @@ export default function Home() {
   const [densityLevel, setDensityLevel] = useState<"low" | "moderate" | "high" | "critical">("high");
   const [viewMode, setViewMode] = useState<"web" | "app">("web");
 
+  React.useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setViewMode("app");
+    }
+  }, []);
+
   return (
     <main className="min-h-screen bg-stone-charcoal text-parchment relative selection:bg-temple-gold selection:text-stone-charcoal">
       {/* View Mode Switcher Header Bar */}
@@ -54,7 +60,7 @@ export default function Home() {
       </div>
 
       {viewMode === "app" ? (
-        <div className="py-6 px-2 bg-stone-dark min-h-screen">
+        <div className="w-full min-h-screen bg-[#FAF8F2]">
           <PilgrimMobileApp />
         </div>
       ) : (
