@@ -46,7 +46,7 @@ jobs:
         run: |
           cd frontend/android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -Dhttp.agent="Gradle/8.0"
 
       - name: Copy APK for Release
         run: |
