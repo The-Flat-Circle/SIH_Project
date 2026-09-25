@@ -257,40 +257,42 @@ export default function PilgrimMobileApp() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-gradient-to-b from-[#FAF8F2] via-[#F6F3EA] to-[#F1EDE2] text-slate-800 font-sans min-h-screen relative flex flex-col pb-28 selection:bg-yellow-300 selection:text-slate-900 shadow-2xl rounded-[40px] overflow-hidden border-8 border-stone-900/10">
+    <div className="w-full min-h-screen bg-gradient-to-b from-[#FAF8F2] via-[#F6F3EA] to-[#F1EDE2] text-slate-800 font-sans relative flex flex-col pb-28 selection:bg-yellow-300 selection:text-slate-900 overflow-x-hidden">
       
       {/* TOP HEADER BAR */}
-      <header className="px-4 pt-5 pb-3 flex items-center justify-between sticky top-0 z-40 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
-        {/* Leftmost Top: App Icon */}
-        <button
-          onClick={() => setActiveTab("home")}
-          className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-xs shrink-0 bg-amber-100 hover:scale-105 transition-transform"
-          title="Home"
-        >
-          <Image src="/app-icon.jpg" alt="App Icon" fill className="object-cover" priority />
-        </button>
+      <header className="px-4 pt-5 pb-3 sticky top-0 z-40 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
+        <div className="max-w-2xl mx-auto flex items-center justify-between w-full">
+          {/* Leftmost Top: App Icon */}
+          <button
+            onClick={() => setActiveTab("home")}
+            className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-xs shrink-0 bg-amber-100 hover:scale-105 transition-transform"
+            title="Home"
+          >
+            <Image src="/app-icon.jpg" alt="App Icon" fill className="object-cover" priority />
+          </button>
 
-        {/* Center: Location Selector Pill */}
-        <div className="px-3.5 py-1.5 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center gap-1.5 max-w-[170px] truncate">
-          <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-          <span className="text-[11px] font-bold text-slate-800 truncate">{activeTemple.name}</span>
+          {/* Center: Location Selector Pill */}
+          <div className="px-3.5 py-1.5 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center gap-1.5 max-w-[190px] sm:max-w-xs truncate">
+            <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span className="text-[11px] font-bold text-slate-800 truncate">{activeTemple.name}</span>
+          </div>
+
+          {/* Right Top: Profile Icon (Symmetric w-10 h-10 rounded-2xl) */}
+          <button
+            onClick={() => setIsProfileOpen(true)}
+            title="User Profile & Auth"
+            className="w-10 h-10 rounded-2xl bg-slate-900 text-yellow-400 border border-slate-800 shadow-xs shrink-0 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all relative"
+          >
+            <User className="w-5 h-5 text-yellow-400" />
+            {userSession && (
+              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
+            )}
+          </button>
         </div>
-
-        {/* Right Top: Profile Icon (Symmetric w-10 h-10 rounded-2xl) */}
-        <button
-          onClick={() => setIsProfileOpen(true)}
-          title="User Profile & Auth"
-          className="w-10 h-10 rounded-2xl bg-slate-900 text-yellow-400 border border-slate-800 shadow-xs shrink-0 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all relative"
-        >
-          <User className="w-5 h-5 text-yellow-400" />
-          {userSession && (
-            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
-          )}
-        </button>
       </header>
 
       {/* MAIN BODY AREA */}
-      <main className="px-5 pt-4 flex-1 space-y-6">
+      <main className="px-4 sm:px-6 pt-4 flex-1 space-y-6 w-full max-w-2xl mx-auto">
         
         {/* ================= TAB 1: HOME ================= */}
         {activeTab === "home" && (

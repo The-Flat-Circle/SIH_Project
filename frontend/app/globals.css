@@ -12,9 +12,13 @@
   --sandstone: #C9B896;
 }
 
-body {
-  background-color: var(--stone-charcoal);
-  color: var(--parchment);
+html, body {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #FAF8F2;
+  color: #1e293b;
   font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
 }
