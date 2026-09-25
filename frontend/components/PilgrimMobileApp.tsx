@@ -241,31 +241,17 @@ export default function PilgrimMobileApp() {
           <span className="text-[11px] font-bold text-slate-800 truncate">{activeTemple.name}</span>
         </div>
 
-        {/* Right Top: Voice Guide & Profile Icon */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setVoiceActive(!voiceActive)}
-            title="Voice Guide"
-            className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all shadow-2xs ${
-              voiceActive
-                ? "bg-amber-400 border-amber-500 text-slate-900 ring-2 ring-amber-300"
-                : "bg-white border-stone-200 text-slate-600"
-            }`}
-          >
-            {voiceActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-
-          <button
-            onClick={() => setIsProfileOpen(true)}
-            title="User Profile & Auth"
-            className="w-9.5 h-9.5 rounded-full bg-slate-900 text-yellow-400 border border-slate-800 shadow-sm flex items-center justify-center hover:bg-slate-800 transition-all relative"
-          >
-            <User className="w-4 h-4" />
-            {userSession && (
-              <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
-            )}
-          </button>
-        </div>
+        {/* Right Top: Profile Icon (Symmetric w-10 h-10 rounded-2xl) */}
+        <button
+          onClick={() => setIsProfileOpen(true)}
+          title="User Profile & Auth"
+          className="w-10 h-10 rounded-2xl bg-slate-900 text-yellow-400 border border-slate-800 shadow-xs shrink-0 flex items-center justify-center hover:bg-slate-800 hover:scale-105 transition-all relative"
+        >
+          <User className="w-5 h-5 text-yellow-400" />
+          {userSession && (
+            <span className="absolute top-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-slate-900" />
+          )}
+        </button>
       </header>
 
       {/* MAIN BODY AREA */}
