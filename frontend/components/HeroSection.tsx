@@ -12,7 +12,7 @@ interface HeroSectionProps {
 }
 
 const DESTINATIONS: { id: SupportedSite; name: string }[] = [
-  { id: "puri", name: "Puri Shree Mandira" },
+  { id: "puri", name: "Jagannath Temple Puri" },
   { id: "vaishnodevi", name: "Mata Vaishno Devi" },
   { id: "tirupati", name: "Tirupati Balaji" },
   { id: "varanasi", name: "Kashi Vishwanath" },

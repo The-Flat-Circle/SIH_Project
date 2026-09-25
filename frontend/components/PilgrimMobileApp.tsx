@@ -20,11 +20,8 @@ import {
   Footprints,
   User,
   LogOut,
-  Mail,
-  Lock,
   CheckCircle2,
   X,
-  KeyRound,
   ShieldCheck
 } from "lucide-react";
 import { supabase, signInWithGoogle } from "@/lib/supabaseClient";
@@ -48,7 +45,7 @@ interface Destination {
 const DESTINATIONS: Destination[] = [
   {
     id: "puri",
-    name: "Puri Shree Mandira",
+    name: "Jagannath Temple Puri",
     state: "ODISHA, INDIA",
     status: "85% High Surge",
     badgeType: "surge",
@@ -137,6 +134,7 @@ export default function PilgrimMobileApp() {
   const [activeTab, setActiveTab] = useState<"home" | "explore" | "route" | "pass">("home");
   const [selectedSite, setSelectedSite] = useState<SupportedSite>("puri");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [isCalculating, setIsCalculating] = useState<boolean>(false);
   const [navStarted, setNavStarted] = useState<boolean>(false);
   const [voiceActive, setVoiceActive] = useState<boolean>(false);
@@ -145,12 +143,8 @@ export default function PilgrimMobileApp() {
   // Supabase Authentication & Profile States
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
   const [userSession, setUserSession] = useState<any>(null);
-  const [authMode, setAuthMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [authLoading, setAuthLoading] = useState<boolean>(false);
   const [authError, setAuthError] = useState<string>("");
-  const [authMessage, setAuthMessage] = useState<string>("");
 
   useEffect(() => {
     // Check initial session
@@ -168,18 +162,30 @@ export default function PilgrimMobileApp() {
 
   const activeTemple = DESTINATIONS.find((d) => d.id === selectedSite) || DESTINATIONS[0];
 
-  // Category filtering
+  // Dynamic Filtering for Search Query + Category Filter
   const filteredDestinations = DESTINATIONS.filter((d) => {
+    // Category match
+    let matchesCategory = true;
     if (activeCategory === "surge") {
-      return d.status.includes("Surge") || d.status.includes("Critical") || d.category === "surge";
+      matchesCategory = d.status.includes("Surge") || d.status.includes("Critical") || d.category === "surge";
+    } else if (activeCategory === "senior") {
+      matchesCategory = d.hasSeniorAccess === true;
+    } else if (activeCategory === "offpeak") {
+      matchesCategory = d.status.includes("Low") || d.status.includes("Normal") || d.category === "offpeak";
     }
-    if (activeCategory === "senior") {
-      return d.hasSeniorAccess === true;
+
+    // Search query match
+    let matchesSearch = true;
+    if (searchQuery.trim() !== "") {
+      const q = searchQuery.toLowerCase().trim();
+      matchesSearch =
+        d.name.toLowerCase().includes(q) ||
+        d.state.toLowerCase().includes(q) ||
+        d.bestGate.toLowerCase().includes(q) ||
+        d.status.toLowerCase().includes(q);
     }
-    if (activeCategory === "offpeak") {
-      return d.status.includes("Low") || d.status.includes("Normal") || d.category === "offpeak";
-    }
-    return true;
+
+    return matchesCategory && matchesSearch;
   });
 
   const toggleFavorite = (id: string) => {
@@ -196,33 +202,10 @@ export default function PilgrimMobileApp() {
     }, 600);
   };
 
-  const handleEmailAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError("");
-    setAuthMessage("");
-
-    try {
-      if (authMode === "signup") {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        setAuthMessage("Account created successfully! Check your email to confirm.");
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        setAuthMessage("Signed in successfully!");
-        setTimeout(() => setIsProfileOpen(false), 1000);
-      }
-    } catch (err: any) {
-      setAuthError(err.message || "Authentication failed. Please try again.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
   const handleGoogleLogin = async () => {
     try {
       setAuthLoading(true);
+      setAuthError("");
       const { error } = await signInWithGoogle();
       if (error) throw error;
     } catch (err: any) {
@@ -236,7 +219,6 @@ export default function PilgrimMobileApp() {
     await supabase.auth.signOut();
     setUserSession(null);
     setAuthLoading(false);
-    setAuthMessage("Signed out safely.");
   };
 
   return (
@@ -244,19 +226,17 @@ export default function PilgrimMobileApp() {
       
       {/* TOP HEADER BAR */}
       <header className="px-4 pt-5 pb-3 flex items-center justify-between sticky top-0 z-40 bg-[#FAF8F2]/95 backdrop-blur-md border-b border-stone-200/60 shadow-xs">
-        {/* Left Top: YatraFlow Logo & Icon */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab("home")}>
-          <div className="relative w-9 h-9 rounded-xl overflow-hidden border border-amber-300 shadow-sm shrink-0 bg-amber-100">
-            <Image src="/app-icon.jpg" alt="YatraFlow Icon" fill className="object-cover" />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-serif font-bold text-sm text-slate-900 tracking-tight leading-none">YatraFlow</span>
-            <span className="text-[9px] font-mono text-amber-600 font-bold uppercase tracking-wider">Crowd Nav</span>
-          </div>
-        </div>
+        {/* Leftmost Top: Only App Icon Image (No YatraFlow text) */}
+        <button
+          onClick={() => setActiveTab("home")}
+          className="relative w-10 h-10 rounded-2xl overflow-hidden border border-amber-300 shadow-sm shrink-0 bg-amber-100 hover:scale-105 transition-transform"
+          title="Home"
+        >
+          <Image src="/app-icon.jpg" alt="App Icon" fill className="object-cover" priority />
+        </button>
 
         {/* Center: Location Selector Pill */}
-        <div className="px-3 py-1 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center gap-1.5 max-w-[130px] truncate">
+        <div className="px-3.5 py-1.5 rounded-full bg-white border border-stone-200 shadow-2xs flex items-center gap-1.5 max-w-[170px] truncate">
           <MapPin className="w-3.5 h-3.5 text-amber-500 shrink-0" />
           <span className="text-[11px] font-bold text-slate-800 truncate">{activeTemple.name}</span>
         </div>
@@ -266,19 +246,19 @@ export default function PilgrimMobileApp() {
           <button
             onClick={() => setVoiceActive(!voiceActive)}
             title="Voice Guide"
-            className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all shadow-2xs ${
+            className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all shadow-2xs ${
               voiceActive
                 ? "bg-amber-400 border-amber-500 text-slate-900 ring-2 ring-amber-300"
                 : "bg-white border-stone-200 text-slate-600"
             }`}
           >
-            {voiceActive ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+            {voiceActive ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           </button>
 
           <button
             onClick={() => setIsProfileOpen(true)}
             title="User Profile & Auth"
-            className="w-9 h-9 rounded-full bg-slate-900 text-yellow-400 border border-slate-800 shadow-sm flex items-center justify-center hover:bg-slate-800 transition-all relative"
+            className="w-9.5 h-9.5 rounded-full bg-slate-900 text-yellow-400 border border-slate-800 shadow-sm flex items-center justify-center hover:bg-slate-800 transition-all relative"
           >
             <User className="w-4 h-4" />
             {userSession && (
@@ -295,15 +275,26 @@ export default function PilgrimMobileApp() {
         {activeTab === "home" && (
           <div className="space-y-6">
             
-            {/* SEARCH BAR */}
+            {/* FUNCTIONAL SEARCH BAR */}
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search crowded temples, gates..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search temples, locations, gates..."
                 className="w-full py-3.5 pl-11 pr-11 rounded-full bg-white border border-stone-200/80 text-xs font-medium text-slate-800 placeholder-stone-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
               />
               <Search className="w-4 h-4 text-stone-400 absolute left-4 top-1/2 -translate-y-1/2" />
-              <SlidersHorizontal className="w-4 h-4 text-slate-700 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" />
+              {searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-stone-400 hover:text-slate-800"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              ) : (
+                <SlidersHorizontal className="w-4 h-4 text-slate-700 absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer" />
+              )}
             </div>
 
             {/* FEATURED TEMPLE COVER CARD */}
@@ -368,7 +359,7 @@ export default function PilgrimMobileApp() {
               </div>
             </div>
 
-            {/* CATEGORY SELECTOR PILLS (NO EMOJIS - FULLY FUNCTIONAL) */}
+            {/* CATEGORY SELECTOR PILLS */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-serif text-lg font-bold text-slate-900">Select Destination</h3>
@@ -394,61 +385,75 @@ export default function PilgrimMobileApp() {
               </div>
             </div>
 
-            {/* 2x2 DESTINATION CARDS GRID */}
-            <div className="grid grid-cols-2 gap-3.5">
-              {filteredDestinations.map((dest) => (
-                <div
-                  key={dest.id}
-                  onClick={() => setSelectedSite(dest.id as SupportedSite)}
-                  className={`relative rounded-3xl overflow-hidden bg-white border transition-all cursor-pointer shadow-md group ${
-                    selectedSite === dest.id ? "ring-2 ring-amber-400 border-amber-400" : "border-stone-200/80"
-                  }`}
-                >
-                  <div className="relative h-44 w-full">
-                    <Image
-                      src={dest.image}
-                      alt={dest.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-
-                    {/* Favorite Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(dest.id);
-                      }}
-                      className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white"
-                    >
-                      <Star
-                        className={`w-4 h-4 ${
-                          favorites.includes(dest.id) ? "fill-yellow-400 text-yellow-400" : ""
-                        }`}
+            {/* DYNAMIC SEARCH & FILTER DESTINATION CARDS GRID */}
+            {filteredDestinations.length > 0 ? (
+              <div className="grid grid-cols-2 gap-3.5">
+                {filteredDestinations.map((dest) => (
+                  <div
+                    key={dest.id}
+                    onClick={() => setSelectedSite(dest.id as SupportedSite)}
+                    className={`relative rounded-3xl overflow-hidden bg-white border transition-all cursor-pointer shadow-md group ${
+                      selectedSite === dest.id ? "ring-2 ring-amber-400 border-amber-400" : "border-stone-200/80"
+                    }`}
+                  >
+                    <div className="relative h-44 w-full">
+                      <Image
+                        src={dest.image}
+                        alt={dest.name}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-                    </button>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
 
-                    {/* Status Badge */}
-                    <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-[9px] font-bold text-white">
-                      {dest.status.split(" ")[0]}
-                    </span>
+                      {/* Favorite Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(dest.id);
+                        }}
+                        className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white"
+                      >
+                        <Star
+                          className={`w-4 h-4 ${
+                            favorites.includes(dest.id) ? "fill-yellow-400 text-yellow-400" : ""
+                          }`}
+                        />
+                      </button>
 
-                    {/* Bottom Info on Card */}
-                    <div className="absolute bottom-3 left-3 right-3 text-white space-y-0.5">
-                      <span className="text-[8px] font-mono tracking-wider text-yellow-300 uppercase block font-semibold">
-                        {dest.state}
+                      {/* Status Badge */}
+                      <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-black/50 backdrop-blur-md text-[9px] font-bold text-white">
+                        {dest.status.split(" ")[0]}
                       </span>
-                      <h4 className="font-serif font-bold text-sm leading-tight text-white line-clamp-1">
-                        {dest.name}
-                      </h4>
-                      <span className="text-[10px] font-mono text-stone-300 block">
-                        Wait: <strong className="text-yellow-400">{dest.waitTime}</strong>
-                      </span>
+
+                      {/* Bottom Info on Card */}
+                      <div className="absolute bottom-3 left-3 right-3 text-white space-y-0.5">
+                        <span className="text-[8px] font-mono tracking-wider text-yellow-300 uppercase block font-semibold">
+                          {dest.state}
+                        </span>
+                        <h4 className="font-serif font-bold text-sm leading-tight text-white line-clamp-1">
+                          {dest.name}
+                        </h4>
+                        <span className="text-[10px] font-mono text-stone-300 block">
+                          Wait: <strong className="text-yellow-400">{dest.waitTime}</strong>
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center bg-white rounded-3xl border border-stone-200 space-y-2">
+                <Search className="w-8 h-8 text-stone-300 mx-auto" />
+                <h4 className="font-serif font-bold text-slate-800 text-base">No Temples Found</h4>
+                <p className="text-xs text-stone-500">No destination matching &quot;{searchQuery}&quot;.</p>
+                <button
+                  onClick={() => { setSearchQuery(""); setActiveCategory("all"); }}
+                  className="px-4 py-2 rounded-full bg-amber-100 text-amber-900 text-xs font-bold mt-2"
+                >
+                  Clear Search Filter
+                </button>
+              </div>
+            )}
 
           </div>
         )}
@@ -677,20 +682,20 @@ export default function PilgrimMobileApp() {
         </div>
       </nav>
 
-      {/* PROFILE & SUPABASE AUTH MODAL */}
+      {/* PROFILE MODAL (DIRECT GOOGLE AUTH ONLY) */}
       {isProfileOpen && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md bg-white rounded-t-[32px] sm:rounded-[32px] overflow-hidden shadow-2xl border border-stone-200 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 font-bold">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 font-bold shadow-xs">
                   <User className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-serif font-bold text-lg text-slate-900">Pilgrim Profile</h3>
-                  <span className="text-[10px] font-mono text-stone-500 uppercase">Supabase Auth Connected</span>
+                  <span className="text-[10px] font-mono text-stone-500 uppercase">Direct Google Auth</span>
                 </div>
               </div>
               <button
@@ -731,104 +736,40 @@ export default function PilgrimMobileApp() {
                 <button
                   onClick={handleSignOut}
                   disabled={authLoading}
-                  className="w-full py-3.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3.5 rounded-2xl bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{authLoading ? "Signing Out..." : "Sign Out"}</span>
                 </button>
               </div>
             ) : (
-              <div className="space-y-4">
-                {/* Mode Tabs */}
-                <div className="grid grid-cols-2 gap-2 p-1 rounded-2xl bg-stone-100 text-xs font-bold">
-                  <button
-                    onClick={() => { setAuthMode("signin"); setAuthError(""); setAuthMessage(""); }}
-                    className={`py-2 rounded-xl transition-all ${
-                      authMode === "signin" ? "bg-white text-slate-900 shadow-xs" : "text-stone-500 hover:text-slate-800"
-                    }`}
-                  >
-                    Sign In
-                  </button>
-                  <button
-                    onClick={() => { setAuthMode("signup"); setAuthError(""); setAuthMessage(""); }}
-                    className={`py-2 rounded-xl transition-all ${
-                      authMode === "signup" ? "bg-white text-slate-900 shadow-xs" : "text-stone-500 hover:text-slate-800"
-                    }`}
-                  >
-                    Sign Up
-                  </button>
+              <div className="space-y-5 text-center py-2">
+                <div className="space-y-1">
+                  <h4 className="font-serif font-bold text-base text-slate-900">Sign In to YatraFlow</h4>
+                  <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                    Authenticate directly using your Google Account to manage live passes and navigation.
+                  </p>
                 </div>
 
                 {authError && (
-                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                  <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium text-left">
                     {authError}
                   </div>
                 )}
 
-                {authMessage && (
-                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
-                    {authMessage}
-                  </div>
-                )}
-
-                {/* Form */}
-                <form onSubmit={handleEmailAuth} className="space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700 block">Email Address</label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="pilgrim@example.com"
-                        className="w-full py-2.5 pl-10 pr-4 rounded-xl border border-stone-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                      />
-                      <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-700 block">Password</label>
-                    <div className="relative">
-                      <input
-                        type="password"
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full py-2.5 pl-10 pr-4 rounded-xl border border-stone-200 text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                      />
-                      <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-yellow-400 via-amber-400 to-amber-500 text-slate-950 font-bold text-xs uppercase tracking-wider hover:brightness-105 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer mt-2"
-                  >
-                    <KeyRound className="w-4 h-4" />
-                    <span>{authLoading ? "Processing..." : authMode === "signin" ? "Sign In with Supabase" : "Create Account"}</span>
-                  </button>
-                </form>
-
-                <div className="relative flex items-center justify-center my-2">
-                  <div className="border-t border-stone-200 w-full" />
-                  <span className="bg-white px-3 text-[10px] font-mono text-stone-400 uppercase absolute">OR</span>
-                </div>
-
+                {/* DIRECT GOOGLE AUTH BUTTON ONLY */}
                 <button
                   onClick={handleGoogleLogin}
-                  className="w-full py-3 rounded-2xl bg-white border border-stone-300 hover:bg-stone-50 text-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-2.5 shadow-xs"
+                  disabled={authLoading}
+                  className="w-full py-4 rounded-2xl bg-white border-2 border-stone-200 hover:border-amber-400 hover:bg-amber-50/50 text-slate-900 font-bold text-sm transition-all flex items-center justify-center gap-3 shadow-md group cursor-pointer"
                 >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
                   </svg>
-                  <span>Continue with Google</span>
+                  <span>{authLoading ? "Connecting..." : "Continue with Google"}</span>
                 </button>
               </div>
             )}

@@ -84,7 +84,7 @@ export default function DashboardsPreviewSection() {
                     <span>CURRENT DESTINATION:</span>
                     <span className="text-emerald-400 font-bold">LIVE</span>
                   </div>
-                  <h4 className="font-serif text-lg text-parchment font-semibold">Puri Shree Mandira</h4>
+                  <h4 className="font-serif text-lg text-parchment font-semibold">Jagannath Temple Puri</h4>
                   <div className="p-2 rounded-xl bg-stone-charcoal/90 border border-emerald-500/40 flex items-center justify-between text-xs font-mono">
                     <div>
                       <span className="text-[9px] text-sandstone block">RECOMMENDED ENTRY:</span>

@@ -14,7 +14,7 @@ interface TempleProps {
 }
 
 const DESTINATIONS_LIST: { id: SupportedSite; name: string; hasTwin: boolean }[] = [
-  { id: "puri", name: "Puri Shree Mandira", hasTwin: true },
+  { id: "puri", name: "Jagannath Temple Puri", hasTwin: true },
   { id: "vaishnodevi", name: "Mata Vaishno Devi", hasTwin: true },
   { id: "tirupati", name: "Tirupati Balaji", hasTwin: true },
   { id: "varanasi", name: "Kashi Vishwanath", hasTwin: true },
